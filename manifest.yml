@@ -1,0 +1,13 @@
+name: slidesconnect
+version: 1.0.0
+authors:
+  - Eesha Jain
+description: "Grasshopper components for the Google Slides API — build slides, shapes, text, tables and images, and push styled decks from Rhino model data. Made with the PleaseREST Claude Code plugin."
+url: https://github.com/eesha-on-jupiter/SlidesConnect
+keywords:
+  - grasshopper
+  - rhino
+  - google-slides
+  - rest
+  - api
+icon: SlidesConnectLogo.png

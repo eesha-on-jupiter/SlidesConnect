@@ -1,0 +1,56 @@
+{
+  "platform": "Google Slides",
+  "base_url": "https://slides.googleapis.com",
+  "auth_method": "OAuth 2.0 Bearer token",
+  "auth_detail": "Authorization: Bearer <access_token>. OAuth scope https://www.googleapis.com/auth/presentations (or .../auth/drive). Access token obtained externally (Google OAuth 2.0 / service account); plugin consumes the access token directly.",
+  "api_version": "v1",
+  "extra_headers": {
+    "Content-Type": "application/json"
+  },
+  "openapi_spec": "https://slides.googleapis.com/$discovery/rest?version=v1",
+  "openapi_available": true,
+  "resources": [
+    {
+      "name": "Auth",
+      "endpoints": [
+        { "id": "auth_check", "method": "GET", "path": "https://www.googleapis.com/oauth2/v3/tokeninfo", "note": "Validates the OAuth access token (different host: oauth2 tokeninfo). Returns the token's scopes/expiry; used only to confirm the token is live before real Slides calls." }
+      ]
+    },
+    {
+      "name": "Presentation",
+      "endpoints": [
+        { "id": "create_presentation", "method": "POST", "path": "/v1/presentations" },
+        { "id": "get_presentation",    "method": "GET",  "path": "/v1/presentations/{presentationId}" },
+        { "id": "batch_update",         "method": "POST", "path": "/v1/presentations/{presentationId}:batchUpdate" }
+      ]
+    },
+    {
+      "name": "Page",
+      "endpoints": [
+        { "id": "get_page",           "method": "GET", "path": "/v1/presentations/{presentationId}/pages/{pageObjectId}" },
+        { "id": "get_page_thumbnail", "method": "GET", "path": "/v1/presentations/{presentationId}/pages/{pageObjectId}/thumbnail" }
+      ]
+    }
+  ],
+  "batch_update_requests": [
+    { "id": "createSlide",                    "purpose": "add a new slide" },
+    { "id": "createShape",                    "purpose": "insert a shape on a page" },
+    { "id": "createTable",                    "purpose": "add a table of given rows/cols" },
+    { "id": "createImage",                    "purpose": "embed an image by URL" },
+    { "id": "createLine",                     "purpose": "add a line/connector" },
+    { "id": "insertText",                     "purpose": "place text into a shape/cell" },
+    { "id": "replaceAllText",                 "purpose": "find-and-replace text across slides" },
+    { "id": "deleteObject",                   "purpose": "remove a page element or slide" },
+    { "id": "duplicateObject",                "purpose": "copy an existing element" },
+    { "id": "updateShapeProperties",          "purpose": "modify shape fill/outline/styling" },
+    { "id": "updateTextStyle",                "purpose": "change text formatting" },
+    { "id": "updatePageElementTransform",     "purpose": "set position, size, rotation" },
+    { "id": "createSheetsChart",              "purpose": "embed a linked Google Sheets chart" },
+    { "id": "createVideo",                    "purpose": "insert a video element" }
+  ],
+  "notes": [
+    "batchUpdate is the single write endpoint — almost every write operation (create slide/shape/table/image, insert text, replace text, delete, transform) is a request object inside one requests[] array. This is a strong fit for the modular payload contract: many unit/aggregator builders feed one batchUpdate write component.",
+    "create_presentation accepts only a title; other body fields are ignored.",
+    "Auth is OAuth bearer access token (no static API key). User supplies the access token at the Token input."
+  ]
+}

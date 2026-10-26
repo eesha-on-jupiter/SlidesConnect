@@ -1,0 +1,79 @@
+{
+  "plugin_name": "SlidesConnect",
+  "platform": "Google Slides",
+  "docs_url": "https://developers.google.com/slides/api/reference/rest",
+  "token_env_var": "PLEASE_REST_TOKEN",
+  "findings_path": "dogfood/SlidesConnect-run-01.md",
+  "started": "2026-06-22T00:00:00",
+  "last_active": "2026-10-26T11:00:00",
+  "current_phase": 15,
+  "current_phase_name": "Package + Ship",
+  "completed_phases": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    15
+  ],
+  "gates_passed": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "gates_pending": [
+    6,
+    7
+  ],
+  "last_completed_step": "Phase 13 + 15 (2026-10-26): docs/ audited against all 62 components (titles, input order/names/defaults, preset values; added workflows.md; 1.0.0 changelog); README.md rewritten in pr:begin sections, LICENSE header, .gitignore, manifest.yml, csproj <Version>1.0.0</Version> + Release stripping + manifest/logo copy, SlidesConnectInfo.AssemblyVersion reads the assembly; .github/workflows/build.yml + publish.yml; dist/ holds 3 .yak (rh7_0-any, rh8_0-win, rh8_0-mac) and the 3 Libraries-folder zips. dotnet build -c Release clean on net48/net7.0-windows/net7.0; dotnet test 65/65 green. Local git repo initialised with one commit; no remote yet.",
+  "next_step": "Phase 14 push: git remote add origin https://github.com/eesha-on-jupiter/SlidesConnect.git && git push -u origin main, then write session.github and append 14. Gate 6 (live demos in Rhino) and Gate 7 (install the .yak on Rhino 7 Win, Rhino 8 Win, Rhino 8 Mac) still pending. Then tag v1.0.0, yak push, Food4Rhino listing, and the README/docs backfill.",
+  "decisions": {
+    "aec_features_selected": [
+      "RhinoToSlideFrame",
+      "DataTreeToTable",
+      "ValueColorMap",
+      "SlideTemplateFill"
+    ],
+    "aec_features_deferred_v2": [
+      "GeometryThumbnailPlacer",
+      "DashboardGrid"
+    ],
+    "structure_decision": "Re-divided from one flat 'Requests' tab into 12 content-type tabs (PowerPoint+/ShapeCrawler model) — see dogfood F1",
+    "skipped_endpoints": [],
+    "partial_calls": [],
+    "manual_fixes": [
+      "Phase 6: api-extractor couldn't parse Google discovery doc (F2) — extracted via apis.guru OpenAPI conversion instead",
+      "Phase 6: auth_check (tokeninfo) added to call-library manually — not in Slides spec, different host",
+      "Phase 7: api-tester reported 6/6 FALSE-FAILED (F3: no base-URL prepend, no seed-chaining, token header-vs-query) — validated all 6 live via curl and wrote call-library-validated.json by hand; url_templates made absolute",
+      "Post-Phase-12 (ad hoc, user request): added CaptureRhinoView.cs to Media tab, mirrored from GoogleDocConnect's component verbatim (namespace + category only changed). 28th placeable component; GUID + icons.json + plugin-spec.json + todo.md updated to match.",
+      "Post-Phase-12: pr-icon-generator's background.shape.type vocabulary changed from underscore to hyphen ('rounded_square' -> 'rounded-square') since this plugin's icons were first generated — icons.json's 7 occurrences fixed. Also found: the MCP server caches icons.json content by config_path and does not reload on edit — regenerating an already-generated icon after fixing the file still failed until a fresh file path was used. See dogfood F7.",
+      "Phase 15 (2026-10-26): demos/ kept out of git (gitignored, user-owned canvases); docs/workflows.md draws the wirings as component chains instead of docs/examples/.",
+      "Phase 15 (2026-10-26): Data Tree To Table has no Object ID output, so its table cannot be wired to the table-styling components — documented as a known limitation rather than changing component signatures at release."
+    ]
+  },
+  "flags": {
+    "token_ready": false,
+    "openapi_spec_used": false,
+    "auth_gate_passed": false,
+    "first_component_approved": false
+  },
+  "please_rest_version": "1.0.0",
+  "author": {
+    "name": "Eesha Jain",
+    "contact": "toeesha@gmail.com"
+  },
+  "github_org": "eesha-on-jupiter",
+  "degraded": {
+    "12": "no Grasshopper bridge — demos specified in demos/README.md, built by hand"
+  }
+}

@@ -1,0 +1,4226 @@
+{
+  "plugin_name": "SlidesConnect",
+  "platform": "Google Slides",
+  "base_url": "https://slides.googleapis.com",
+  "auth_method": "OAuth 2.0 Bearer token",
+  "api_version": "v1",
+  "tab_name": "SlidesConnect",
+  "structure_note": "Divided by content type (PowerPoint+ / ShapeCrawler model) rather than one-per-REST-resource, because Google Slides has a single write endpoint (batchUpdate) that takes a heterogeneous requests[] array. JSON builders are grouped Slides/Layouts/Shapes/Text/Tables/Insert/Aggregate; HTTP send stays in its own tab (JSON/HTTP separation hard rule). See dogfood F1. Style (RgbColor/ValueColorMap) was removed entirely 2026-08-16 — color inputs are native Grasshopper Colour parameters (converted to the API RGB JSON in-plugin, 2026-09-15). Layouts consolidates every component about designing/consuming a Google Slides Layout (List Layouts, List Layout Placeholders, Build Slides From Layout, Read CSV, Get CSV Column). Aggregate (renamed from Compose) now holds only the request-collection component (Requests Aggregator) — Build Simple Slide moved into Slides alongside its layout-driven counterpart, Create Slide. Text holds content insertion (Insert Text, Replace All Text, Styled Text Box incl. its per-run Same Box mode); Text Style (07) holds everything that styles text already in an object (Styled Text, Styled Paragraph, Bullet List + the 15 one-trait DocsConnect-parity components). Design rule 2026-09-15: every input must be graph-drivable — no character indices or other look-up-and-compute inputs; ranges for per-letter styling are computed in the builders.",
+  "subcategories": [
+    {
+      "name": "Auth",
+      "type": "http",
+      "components": [
+        {
+          "class_name": "SlidesConnectAuthComponent",
+          "file_name": "SlidesConnectAuth.cs",
+          "type": "component",
+          "role": "write",
+          "endpoint_id": "auth_check",
+          "inputs": [
+            {
+              "name": "Token",
+              "nickname": "T",
+              "type": "string",
+              "access": "item",
+              "default": ""
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Status",
+              "nickname": "S",
+              "type": "string",
+              "access": "item"
+            },
+            {
+              "name": "Response",
+              "nickname": "R",
+              "type": "string",
+              "access": "item"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Presentation",
+      "type": "http",
+      "components": [
+        {
+          "class_name": "CreatePresentationComponent",
+          "file_name": "CreatePresentation.cs",
+          "type": "component",
+          "role": "write",
+          "endpoint_id": "create_presentation",
+          "inputs": [
+            {
+              "name": "Token",
+              "nickname": "T",
+              "type": "string",
+              "access": "item",
+              "default": ""
+            },
+            {
+              "name": "Title",
+              "nickname": "N",
+              "type": "string",
+              "access": "item",
+              "default": "Untitled presentation"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Presentation ID",
+              "nickname": "PID",
+              "type": "string",
+              "access": "item"
+            },
+            {
+              "name": "Status",
+              "nickname": "S",
+              "type": "string",
+              "access": "item"
+            },
+            {
+              "name": "Response",
+              "nickname": "R",
+              "type": "string",
+              "access": "item"
+            }
+          ]
+        },
+        {
+          "class_name": "GetPresentationComponent",
+          "file_name": "GetPresentation.cs",
+          "type": "component",
+          "role": "write",
+          "endpoint_id": "get_presentation",
+          "description": "Fetches a presentation by ID, or by title when Presentation ID is left blank — the title is resolved via a Drive files.list lookup (SlidesConnectClient.FindPresentationIdByNameAsync), most-recently-modified match wins on ambiguity. Name-based lookup requires the token to also carry a Drive read scope (drive.readonly) in addition to the Slides presentations scope.",
+          "inputs": [
+            {
+              "name": "Token",
+              "nickname": "T",
+              "type": "string",
+              "access": "item",
+              "default": ""
+            },
+            {
+              "name": "Presentation ID",
+              "nickname": "PID",
+              "type": "string",
+              "access": "item",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Name",
+              "nickname": "N",
+              "type": "string",
+              "access": "item",
+              "default": "",
+              "optional": true
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Response",
+              "nickname": "R",
+              "type": "string",
+              "access": "item"
+            },
+            {
+              "name": "Presentation ID",
+              "nickname": "PID",
+              "type": "string",
+              "access": "item"
+            },
+            {
+              "name": "Status",
+              "nickname": "S",
+              "type": "string",
+              "access": "item"
+            }
+          ]
+        },
+        {
+          "class_name": "BatchUpdateComponent",
+          "file_name": "BatchUpdate.cs",
+          "type": "component",
+          "role": "write",
+          "endpoint_id": "batch_update",
+          "inputs": [
+            {
+              "name": "Token",
+              "nickname": "T",
+              "type": "string",
+              "access": "item",
+              "default": ""
+            },
+            {
+              "name": "Presentation ID",
+              "nickname": "PID",
+              "type": "string",
+              "access": "item",
+              "default": ""
+            },
+            {
+              "name": "Requests JSON",
+              "nickname": "RQS",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Replies",
+              "nickname": "RP",
+              "type": "string",
+              "access": "list"
+            },
+            {
+              "name": "Status",
+              "nickname": "S",
+              "type": "string",
+              "access": "item"
+            },
+            {
+              "name": "Response",
+              "nickname": "R",
+              "type": "string",
+              "access": "item"
+            }
+          ],
+          "description": " Remembers the object IDs it has created per presentation; a repeat Send with unchanged upstream (same auto-generated IDs) remaps those to fresh IDs consistently across the batch (RequestBuilders.RemapCreatedIds) so it adds a second copy instead of failing with 'object ID already exists'."
+        }
+      ]
+    },
+    {
+      "name": "Slides",
+      "type": "mixed",
+      "components": [
+        {
+          "class_name": "GetSlideComponent",
+          "file_name": "GetSlide.cs",
+          "type": "component",
+          "role": "write",
+          "endpoint_id": "get_page",
+          "inputs": [
+            {
+              "name": "Token",
+              "nickname": "T",
+              "type": "string",
+              "access": "item",
+              "default": ""
+            },
+            {
+              "name": "Presentation ID",
+              "nickname": "PID",
+              "type": "string",
+              "access": "item",
+              "default": ""
+            },
+            {
+              "name": "Slide ID",
+              "nickname": "SID",
+              "type": "string",
+              "access": "item",
+              "default": ""
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Response",
+              "nickname": "R",
+              "type": "string",
+              "access": "item"
+            },
+            {
+              "name": "Status",
+              "nickname": "S",
+              "type": "string",
+              "access": "item"
+            }
+          ]
+        },
+        {
+          "class_name": "CreateSlideComponent",
+          "file_name": "CreateSlide.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Builds createSlide requests for one or more slides. Object ID is auto-generated (EnsureId) when blank, and resolved back out so downstream components can target the new slide. Layout ID (an existing Layout's object ID) wins over the predefinedLayout keyword when both are supplied. Optional Title/Body/Picture Placeholder ID (from List Layout Placeholders) populate createSlide.placeholderIdMappings, mapping that layout placeholder to a fresh auto-generated object ID resolved back out per role — the deterministic alternative to Slide Template Fill's (removed) text-token matching for filling a layout's placeholders.",
+          "inputs": [
+            {
+              "name": "Layout",
+              "nickname": "LO",
+              "type": "string",
+              "access": "list",
+              "default": "BLANK"
+            },
+            {
+              "name": "Insertion Index",
+              "nickname": "IX",
+              "type": "int",
+              "access": "list",
+              "default": "-1"
+            },
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Layout ID",
+              "nickname": "LID",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Title Placeholder ID",
+              "nickname": "TPH",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Body Placeholder ID",
+              "nickname": "BPH",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Picture Placeholder ID",
+              "nickname": "PPH",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            },
+            {
+              "name": "Slide ID",
+              "nickname": "SID",
+              "type": "string",
+              "access": "list"
+            },
+            {
+              "name": "Title Object ID",
+              "nickname": "TOID",
+              "type": "string",
+              "access": "list"
+            },
+            {
+              "name": "Body Object ID",
+              "nickname": "BOID",
+              "type": "string",
+              "access": "list"
+            },
+            {
+              "name": "Picture Object ID",
+              "nickname": "POID",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "UpdateSlidePropertiesComponent",
+          "file_name": "UpdateSlideProperties.cs",
+          "type": "component",
+          "role": "unit",
+          "inputs": [
+            {
+              "name": "Slide ID",
+              "nickname": "SID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Color",
+              "nickname": "C",
+              "type": "colour",
+              "access": "list",
+              "default": ""
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "DeleteSlideComponent",
+          "file_name": "DeleteSlide.cs",
+          "type": "component",
+          "role": "unit",
+          "inputs": [
+            {
+              "name": "Slide ID",
+              "nickname": "SID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Layouts",
+      "type": "mixed",
+      "components": [
+        {
+          "class_name": "ListLayoutsComponent",
+          "file_name": "ListLayouts.cs",
+          "type": "component",
+          "role": "write",
+          "description": "Lists the Layout pages available in a presentation (parses the layouts[] array from Get Presentation's response), so a hand-designed custom layout can be found by displayName and wired straight into Create Slide's Layout ID input instead of hunting for its object ID in raw JSON. Icon not yet generated (null) — added post-Phase-9, pending an icon pass.",
+          "inputs": [
+            {
+              "name": "Token",
+              "nickname": "T",
+              "type": "string",
+              "access": "item",
+              "default": ""
+            },
+            {
+              "name": "Presentation ID",
+              "nickname": "PID",
+              "type": "string",
+              "access": "item",
+              "default": ""
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Layout ID",
+              "nickname": "LID",
+              "type": "string",
+              "access": "list"
+            },
+            {
+              "name": "Layout Name",
+              "nickname": "LN",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "ListLayoutPlaceholdersComponent",
+          "file_name": "ListLayoutPlaceholders.cs",
+          "type": "component",
+          "role": "write",
+          "description": "Lists the placeholder page elements on a Layout page (via Get Page on the Layout ID) — each entry's own object ID and placeholder type (TITLE, BODY, PICTURE, etc, from pageElements[].shape.placeholder). Feed a Placeholder ID into Create Slide's Title/Body/Picture Placeholder ID inputs to populate that placeholder deterministically via placeholderIdMappings. Icon not yet generated (null) — added post-Phase-9, pending an icon pass.",
+          "inputs": [
+            {
+              "name": "Token",
+              "nickname": "T",
+              "type": "string",
+              "access": "item",
+              "default": ""
+            },
+            {
+              "name": "Presentation ID",
+              "nickname": "PID",
+              "type": "string",
+              "access": "item",
+              "default": ""
+            },
+            {
+              "name": "Layout ID",
+              "nickname": "LID",
+              "type": "string",
+              "access": "item",
+              "default": ""
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Placeholder ID",
+              "nickname": "PHID",
+              "type": "string",
+              "access": "list"
+            },
+            {
+              "name": "Placeholder Type",
+              "nickname": "PHT",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "BuildSlidesFromLayoutComponent",
+          "file_name": "BuildSlidesFromLayout.cs",
+          "type": "component",
+          "role": "feature",
+          "aec_feature": false,
+          "description": "The one-component path from 'a Layout + flat lists' to a finished deck's requests. Given a Layout ID and up to four flat lists (Title/Subtitle/Body/Photo URL), it makes one GetPage call itself to find the layout's TITLE-or-CENTERED_TITLE/SUBTITLE/BODY/PICTURE placeholders (both title placeholder type variants are treated as the Title role — confirmed live: a title-slide-style layout reports CENTERED_TITLE, not TITLE, and matching only TITLE silently dropped it), then for each record builds createSlide (with placeholderIdMappings) plus the matching insertText/replaceImage requests. No List Layout Placeholders, no ID-threading, no text-token matching required from the user. Output wires straight into Batch Update (Requests Aggregator only needed when combining with other content). Added directly in response to live-testing friction with the lower-level List Layouts + List Layout Placeholders + Create Slide + Insert Text + Replace Image wiring path, which still exists underneath for anyone who needs finer control. Icon not yet generated (null).",
+          "inputs": [
+            {
+              "name": "Token",
+              "nickname": "T",
+              "type": "string",
+              "access": "item",
+              "default": ""
+            },
+            {
+              "name": "Presentation ID",
+              "nickname": "PID",
+              "type": "string",
+              "access": "item",
+              "default": ""
+            },
+            {
+              "name": "Layout ID",
+              "nickname": "LID",
+              "type": "string",
+              "access": "item",
+              "default": ""
+            },
+            {
+              "name": "Title",
+              "nickname": "TI",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Subtitle",
+              "nickname": "SU",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Body",
+              "nickname": "BD",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Photo URL",
+              "nickname": "PH",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            },
+            {
+              "name": "Slide ID",
+              "nickname": "SID",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "ReadCsvComponent",
+          "file_name": "ReadCsv.cs",
+          "type": "component",
+          "role": "feature",
+          "aec_feature": false,
+          "description": "Reads a CSV file, outputs a column-per-branch tree (one branch per column, items = that column's values down the rows) + parallel Headers list. Ported directly from NotionConnect's Reader CSV (same proven parsing logic — quoted fields, custom delimiter, encoding selection). Pairs directly with Get CSV Column to feed Build Slides From Layout / Build Simple Slide. Icon not yet generated (null).",
+          "inputs": [
+            {
+              "name": "File Path",
+              "nickname": "FP",
+              "type": "string",
+              "access": "item",
+              "default": ""
+            },
+            {
+              "name": "Has Headers",
+              "nickname": "H",
+              "type": "bool",
+              "access": "item",
+              "default": "true"
+            },
+            {
+              "name": "Delimiter",
+              "nickname": "DL",
+              "type": "string",
+              "access": "item",
+              "default": ",",
+              "optional": true
+            },
+            {
+              "name": "Encoding",
+              "nickname": "ENC",
+              "type": "string",
+              "access": "item",
+              "default": "UTF8",
+              "optional": true
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Columns",
+              "nickname": "C",
+              "type": "string",
+              "access": "tree"
+            },
+            {
+              "name": "Headers",
+              "nickname": "H",
+              "type": "string",
+              "access": "list"
+            },
+            {
+              "name": "Rows",
+              "nickname": "R",
+              "type": "int",
+              "access": "item"
+            },
+            {
+              "name": "Cols",
+              "nickname": "CO",
+              "type": "int",
+              "access": "item"
+            },
+            {
+              "name": "Error",
+              "nickname": "E",
+              "type": "string",
+              "access": "item"
+            }
+          ]
+        },
+        {
+          "class_name": "GetCsvColumnComponent",
+          "file_name": "GetCsvColumn.cs",
+          "type": "component",
+          "role": "feature",
+          "aec_feature": false,
+          "description": "Pulls one column out of Read CSV's Columns tree by header name (case-insensitive) instead of by branch index — robust to the CSV's column order changing. Output is already the flat list Build Slides From Layout / Build Simple Slide want for Title/Subtitle/Body/Photo URL. Icon not yet generated (null).",
+          "inputs": [
+            {
+              "name": "Columns",
+              "nickname": "C",
+              "type": "string",
+              "access": "tree"
+            },
+            {
+              "name": "Headers",
+              "nickname": "H",
+              "type": "string",
+              "access": "list"
+            },
+            {
+              "name": "Header Name",
+              "nickname": "N",
+              "type": "string",
+              "access": "item",
+              "default": ""
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Values",
+              "nickname": "V",
+              "type": "string",
+              "access": "list"
+            },
+            {
+              "name": "Found",
+              "nickname": "F",
+              "type": "bool",
+              "access": "item"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Shapes",
+      "type": "mixed",
+      "components": [
+        {
+          "class_name": "CreateShapeComponent",
+          "file_name": "CreateShape.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Builds createShape requests for one or more shapes. Slide ID repeated across records places many shapes on one slide; varied Slide ID spreads them across slides. Object ID is auto-generated (EnsureId) when blank and resolved back out. Width/Height/X/Y/Outline Weight take real-world Unit (pt/in/mm/cm/m/ft) instead of raw EMU (converted via GeometryBuilders.ToEmu). Optional Color / Outline Weight bundle an updateShapeProperties request right after each shape's createShape request, since the API has no color field on createShape itself. Rotation (degrees, clockwise) is applied about the element's centre via RequestBuilders.RotatedTransform, so Rhino Shape Export's Rotation output wires straight in. Rotation, Flip X/Y and Skew X/Y compose into one transform about the element's centre (RequestBuilders.ElementTransform / Placement).",
+          "inputs": [
+            {
+              "name": "Slide ID",
+              "nickname": "SID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Shape Type",
+              "nickname": "ST",
+              "type": "string",
+              "access": "list",
+              "default": "TEXT_BOX"
+            },
+            {
+              "name": "Width",
+              "nickname": "W",
+              "type": "double",
+              "access": "list",
+              "default": "3.0"
+            },
+            {
+              "name": "Height",
+              "nickname": "H",
+              "type": "double",
+              "access": "list",
+              "default": "1.0"
+            },
+            {
+              "name": "X",
+              "nickname": "X",
+              "type": "double",
+              "access": "list",
+              "default": "0"
+            },
+            {
+              "name": "Y",
+              "nickname": "Y",
+              "type": "double",
+              "access": "list",
+              "default": "0"
+            },
+            {
+              "name": "Unit",
+              "nickname": "U",
+              "type": "string",
+              "access": "list",
+              "default": "in"
+            },
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Color",
+              "nickname": "C",
+              "type": "colour",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Outline Weight",
+              "nickname": "OW",
+              "type": "double",
+              "access": "list",
+              "default": "0",
+              "optional": true
+            },
+            {
+              "name": "Rotation",
+              "nickname": "RO",
+              "type": "double",
+              "access": "list",
+              "default": "0"
+            },
+            {
+              "name": "Flip X",
+              "nickname": "FX",
+              "type": "bool",
+              "access": "list",
+              "default": "false"
+            },
+            {
+              "name": "Flip Y",
+              "nickname": "FY",
+              "type": "bool",
+              "access": "list",
+              "default": "false"
+            },
+            {
+              "name": "Skew X",
+              "nickname": "KX",
+              "type": "double",
+              "access": "list",
+              "default": "0"
+            },
+            {
+              "name": "Skew Y",
+              "nickname": "KY",
+              "type": "double",
+              "access": "list",
+              "default": "0"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            },
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "UpdateShapeTransformComponent",
+          "file_name": "UpdateShapeTransform.cs",
+          "type": "component",
+          "role": "unit",
+          "inputs": [
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "X",
+              "nickname": "X",
+              "type": "double",
+              "access": "list",
+              "default": "0"
+            },
+            {
+              "name": "Y",
+              "nickname": "Y",
+              "type": "double",
+              "access": "list",
+              "default": "0"
+            },
+            {
+              "name": "Scale X",
+              "nickname": "SX",
+              "type": "double",
+              "access": "list",
+              "default": "1"
+            },
+            {
+              "name": "Scale Y",
+              "nickname": "SY",
+              "type": "double",
+              "access": "list",
+              "default": "1"
+            },
+            {
+              "name": "Rotation",
+              "nickname": "RO",
+              "type": "double",
+              "access": "list",
+              "default": "0"
+            },
+            {
+              "name": "Unit",
+              "nickname": "U",
+              "type": "string",
+              "access": "list",
+              "default": "in"
+            },
+            {
+              "name": "Flip X",
+              "nickname": "FX",
+              "type": "bool",
+              "access": "list",
+              "default": "false"
+            },
+            {
+              "name": "Flip Y",
+              "nickname": "FY",
+              "type": "bool",
+              "access": "list",
+              "default": "false"
+            },
+            {
+              "name": "Skew X",
+              "nickname": "KX",
+              "type": "double",
+              "access": "list",
+              "default": "0"
+            },
+            {
+              "name": "Skew Y",
+              "nickname": "KY",
+              "type": "double",
+              "access": "list",
+              "default": "0"
+            },
+            {
+              "name": "Width",
+              "nickname": "W",
+              "type": "double",
+              "access": "list",
+              "default": "0"
+            },
+            {
+              "name": "Height",
+              "nickname": "H",
+              "type": "double",
+              "access": "list",
+              "default": "0"
+            },
+            {
+              "name": "Relative",
+              "nickname": "REL",
+              "type": "bool",
+              "access": "list",
+              "default": "false"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ],
+          "description": " Relative = true emits a pure RELATIVE translation (move by delta, size/rotation untouched) — the safe way to nudge a layout placeholder whose stored scale isn't 1; absolute replaces the whole matrix. Absolute mode takes the full Placement (scale, rotation, flip, skew); when Width/Height are supplied the placement pivots about the element's centre, otherwise about its top-left (API default)."
+        },
+        {
+          "class_name": "RhinoShapeExportComponent",
+          "file_name": "RhinoShapeExport.cs",
+          "type": "component",
+          "role": "feature",
+          "aec_feature": true,
+          "description": "Converts one or more Rhino rectangles + unit into Slides X/Y/Width/Height/Rotation in that same model unit (never raw EMU), flipping Rhino Y-up to the Slides top-left origin (Rhino origin = page bottom-left, 10x5.625 in page), negating rotation to Slides' clockwise convention, and optionally fitting to the page. Also echoes the Unit so it can be wired into CreateShape/CreateImage/UpdateShapeTransform's Unit alongside X/Y/Width/Height. An invalid rectangle at a given index is skipped (runtime warning) without aborting the rest of the batch.",
+          "inputs": [
+            {
+              "name": "Rectangle",
+              "nickname": "RC",
+              "type": "rectangle",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Unit",
+              "nickname": "U",
+              "type": "string",
+              "access": "list",
+              "default": "in"
+            },
+            {
+              "name": "Fit To Page",
+              "nickname": "FP",
+              "type": "bool",
+              "access": "list",
+              "default": "false"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "X",
+              "nickname": "X",
+              "type": "double",
+              "access": "list"
+            },
+            {
+              "name": "Y",
+              "nickname": "Y",
+              "type": "double",
+              "access": "list"
+            },
+            {
+              "name": "Width",
+              "nickname": "W",
+              "type": "double",
+              "access": "list"
+            },
+            {
+              "name": "Height",
+              "nickname": "H",
+              "type": "double",
+              "access": "list"
+            },
+            {
+              "name": "Rotation",
+              "nickname": "RO",
+              "type": "double",
+              "access": "list"
+            },
+            {
+              "name": "Unit",
+              "nickname": "U",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "UpdateShapePropertiesComponent",
+          "file_name": "UpdateShapeProperties.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Restyles one or more existing shapes with any combination of fill, outline, shadow, vertical text alignment, autofit and link.",
+          "inputs": [
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Fill Color",
+              "nickname": "C",
+              "type": "colour",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Fill Transparency",
+              "nickname": "FT",
+              "type": "double",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Outline Color",
+              "nickname": "OC",
+              "type": "colour",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Outline Weight",
+              "nickname": "OW",
+              "type": "double",
+              "access": "list",
+              "default": "0",
+              "optional": true
+            },
+            {
+              "name": "Outline Dash",
+              "nickname": "OD",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Shadow",
+              "nickname": "SH",
+              "type": "bool",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Content Alignment",
+              "nickname": "CA",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Autofit",
+              "nickname": "AF",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Link URL",
+              "nickname": "LK",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Unit",
+              "nickname": "U",
+              "type": "string",
+              "access": "list",
+              "default": "pt",
+              "optional": true
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "ShapeFillComponent",
+          "file_name": "ShapeFill.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Sets the fill colour and/or transparency of one or more existing shapes.",
+          "inputs": [
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Fill Color",
+              "nickname": "C",
+              "type": "colour",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Fill Transparency",
+              "nickname": "FT",
+              "type": "double",
+              "access": "list",
+              "default": "",
+              "optional": true
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "ShapeOutlineComponent",
+          "file_name": "ShapeOutline.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Sets the outline colour, weight and/or dash style of one or more existing shapes.",
+          "inputs": [
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Outline Color",
+              "nickname": "OC",
+              "type": "colour",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Outline Weight",
+              "nickname": "OW",
+              "type": "double",
+              "access": "list",
+              "default": "0",
+              "optional": true
+            },
+            {
+              "name": "Outline Dash",
+              "nickname": "OD",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Unit",
+              "nickname": "U",
+              "type": "string",
+              "access": "list",
+              "default": "pt",
+              "optional": true
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "ShapeShadowComponent",
+          "file_name": "ShapeShadow.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Adds a soft outer drop shadow to one or more existing shapes, or removes it.",
+          "inputs": [
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Shadow",
+              "nickname": "SH",
+              "type": "bool",
+              "access": "list",
+              "default": "true",
+              "optional": true
+            },
+            {
+              "name": "Shadow Color",
+              "nickname": "SC",
+              "type": "colour",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Transparency",
+              "nickname": "ST",
+              "type": "double",
+              "access": "list",
+              "default": "0.6",
+              "optional": true
+            },
+            {
+              "name": "Blur",
+              "nickname": "BR",
+              "type": "double",
+              "access": "list",
+              "default": "3",
+              "optional": true
+            },
+            {
+              "name": "Offset X",
+              "nickname": "OX",
+              "type": "double",
+              "access": "list",
+              "default": "3",
+              "optional": true
+            },
+            {
+              "name": "Offset Y",
+              "nickname": "OY",
+              "type": "double",
+              "access": "list",
+              "default": "3",
+              "optional": true
+            },
+            {
+              "name": "Unit",
+              "nickname": "U",
+              "type": "string",
+              "access": "list",
+              "default": "pt",
+              "optional": true
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "ShapeLinkComponent",
+          "file_name": "ShapeLink.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Hyperlinks one or more existing shapes to a URL.",
+          "inputs": [
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "URL",
+              "nickname": "LK",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "ShapeTextFitComponent",
+          "file_name": "ShapeTextFit.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Sets how text sits in one or more existing shapes: vertical alignment and autofit.",
+          "inputs": [
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Content Alignment",
+              "nickname": "CA",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Autofit",
+              "nickname": "AF",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Text",
+      "type": "json",
+      "components": [
+        {
+          "class_name": "InsertTextComponent",
+          "file_name": "InsertText.cs",
+          "type": "component",
+          "role": "unit",
+          "inputs": [
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Text",
+              "nickname": "TX",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "ReplaceAllTextComponent",
+          "file_name": "ReplaceAllText.cs",
+          "type": "component",
+          "role": "unit",
+          "inputs": [
+            {
+              "name": "Find Text",
+              "nickname": "FT",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Replace Text",
+              "nickname": "RT",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Match Case",
+              "nickname": "MC",
+              "type": "bool",
+              "access": "list",
+              "default": "false"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ],
+          "description": "Builds replaceAllText requests, one per record (Find Text / Replace Text / Match Case index-matched) — a list of {{tokens}} and a CSV column fills a template deck in one batch."
+        },
+        {
+          "class_name": "StyledTextBoxComponent",
+          "file_name": "StyledTextBox.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Creates a text box per record, inserts the text, and applies any combination of character, paragraph and box styles in one call — the Slides counterpart of DocsConnect's Styled Text. Same Box = true joins every Text item into ONE box, each item keeping its own per-run style; the character ranges are computed by StyleBuilders.AssembleStyledTextRuns from the fragment lengths, never supplied by the user (font-size wave, colour gradient across a sentence). Rotation, Flip X/Y and Skew X/Y compose into one transform about the element's centre (RequestBuilders.ElementTransform / Placement).",
+          "inputs": [
+            {
+              "name": "Slide ID",
+              "nickname": "SID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Text",
+              "nickname": "TX",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "X",
+              "nickname": "X",
+              "type": "double",
+              "access": "list",
+              "default": "0.5",
+              "optional": true
+            },
+            {
+              "name": "Y",
+              "nickname": "Y",
+              "type": "double",
+              "access": "list",
+              "default": "0.5",
+              "optional": true
+            },
+            {
+              "name": "Width",
+              "nickname": "W",
+              "type": "double",
+              "access": "list",
+              "default": "4.0",
+              "optional": true
+            },
+            {
+              "name": "Height",
+              "nickname": "H",
+              "type": "double",
+              "access": "list",
+              "default": "1.0",
+              "optional": true
+            },
+            {
+              "name": "Unit",
+              "nickname": "U",
+              "type": "string",
+              "access": "list",
+              "default": "in",
+              "optional": true
+            },
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Bold",
+              "nickname": "B",
+              "type": "bool",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Italic",
+              "nickname": "I",
+              "type": "bool",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Underline",
+              "nickname": "U",
+              "type": "bool",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Strikethrough",
+              "nickname": "SK",
+              "type": "bool",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Font Size",
+              "nickname": "FS",
+              "type": "double",
+              "access": "list",
+              "default": "0",
+              "optional": true
+            },
+            {
+              "name": "Font Family",
+              "nickname": "FF",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Text Color",
+              "nickname": "FC",
+              "type": "colour",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Highlight",
+              "nickname": "HC",
+              "type": "colour",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Link URL",
+              "nickname": "LK",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Baseline",
+              "nickname": "BL",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Alignment",
+              "nickname": "AL",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Line Spacing",
+              "nickname": "LS",
+              "type": "double",
+              "access": "list",
+              "default": "0",
+              "optional": true
+            },
+            {
+              "name": "Bullet Preset",
+              "nickname": "BP",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Fill Color",
+              "nickname": "BG",
+              "type": "colour",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Content Alignment",
+              "nickname": "CA",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Autofit",
+              "nickname": "AF",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Rotation",
+              "nickname": "RO",
+              "type": "double",
+              "access": "list",
+              "default": "0"
+            },
+            {
+              "name": "Flip X",
+              "nickname": "FX",
+              "type": "bool",
+              "access": "list",
+              "default": "false"
+            },
+            {
+              "name": "Flip Y",
+              "nickname": "FY",
+              "type": "bool",
+              "access": "list",
+              "default": "false"
+            },
+            {
+              "name": "Skew X",
+              "nickname": "KX",
+              "type": "double",
+              "access": "list",
+              "default": "0"
+            },
+            {
+              "name": "Skew Y",
+              "nickname": "KY",
+              "type": "double",
+              "access": "list",
+              "default": "0"
+            },
+            {
+              "name": "Same Box",
+              "nickname": "SB",
+              "type": "bool",
+              "access": "item",
+              "default": "false"
+            },
+            {
+              "name": "Separator",
+              "nickname": "SEP",
+              "type": "string",
+              "access": "item",
+              "default": ""
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            },
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Text Style",
+      "type": "json",
+      "components": [
+        {
+          "class_name": "UpdateTextStyleComponent",
+          "file_name": "UpdateTextStyle.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Styles the text in one or more shapes or table cells with any combination of character traits — the Slides counterpart of DocsConnect's Styled Text.",
+          "inputs": [
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Bold",
+              "nickname": "B",
+              "type": "bool",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Italic",
+              "nickname": "I",
+              "type": "bool",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Underline",
+              "nickname": "U",
+              "type": "bool",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Strikethrough",
+              "nickname": "SK",
+              "type": "bool",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Font Size",
+              "nickname": "FS",
+              "type": "double",
+              "access": "list",
+              "default": "0",
+              "optional": true
+            },
+            {
+              "name": "Font Family",
+              "nickname": "FF",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Text Color",
+              "nickname": "FC",
+              "type": "colour",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Highlight",
+              "nickname": "HC",
+              "type": "colour",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Link URL",
+              "nickname": "LK",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Baseline",
+              "nickname": "BL",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Small Caps",
+              "nickname": "SC",
+              "type": "bool",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Row",
+              "nickname": "R",
+              "type": "int",
+              "access": "list",
+              "default": "-1",
+              "optional": true
+            },
+            {
+              "name": "Column",
+              "nickname": "CL",
+              "type": "int",
+              "access": "list",
+              "default": "-1",
+              "optional": true
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "UpdateParagraphStyleComponent",
+          "file_name": "UpdateParagraphStyle.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Styles the paragraphs in one or more shapes or table cells with any combination of paragraph-level traits — the Slides counterpart of DocsConnect's Styled Paragraph.",
+          "inputs": [
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Alignment",
+              "nickname": "AL",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Line Spacing",
+              "nickname": "LS",
+              "type": "double",
+              "access": "list",
+              "default": "0",
+              "optional": true
+            },
+            {
+              "name": "Indent",
+              "nickname": "IN",
+              "type": "double",
+              "access": "list",
+              "default": "0",
+              "optional": true
+            },
+            {
+              "name": "Space Above",
+              "nickname": "SA",
+              "type": "double",
+              "access": "list",
+              "default": "0",
+              "optional": true
+            },
+            {
+              "name": "Space Below",
+              "nickname": "SB",
+              "type": "double",
+              "access": "list",
+              "default": "0",
+              "optional": true
+            },
+            {
+              "name": "Indent End",
+              "nickname": "IE",
+              "type": "double",
+              "access": "list",
+              "default": "0",
+              "optional": true
+            },
+            {
+              "name": "First Line Indent",
+              "nickname": "FI",
+              "type": "double",
+              "access": "list",
+              "default": "0",
+              "optional": true
+            },
+            {
+              "name": "Direction",
+              "nickname": "DR",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Row",
+              "nickname": "R",
+              "type": "int",
+              "access": "list",
+              "default": "-1",
+              "optional": true
+            },
+            {
+              "name": "Column",
+              "nickname": "CL",
+              "type": "int",
+              "access": "list",
+              "default": "-1",
+              "optional": true
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "BulletListComponent",
+          "file_name": "BulletList.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Turns the paragraphs in one or more shapes or table cells into a bulleted or numbered list — the Slides counterpart of DocsConnect's Bullet List.",
+          "inputs": [
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Bullet Preset",
+              "nickname": "BP",
+              "type": "string",
+              "access": "list",
+              "default": "BULLET_DISC_CIRCLE_SQUARE",
+              "optional": true
+            },
+            {
+              "name": "Row",
+              "nickname": "R",
+              "type": "int",
+              "access": "list",
+              "default": "-1",
+              "optional": true
+            },
+            {
+              "name": "Column",
+              "nickname": "CL",
+              "type": "int",
+              "access": "list",
+              "default": "-1",
+              "optional": true
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "BoldTextComponent",
+          "file_name": "BoldText.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Makes the text in one or more shapes bold (or un-bold). The Slides counterpart of DocsConnect's Bold Text.",
+          "inputs": [
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Bold",
+              "nickname": "B",
+              "type": "bool",
+              "access": "list",
+              "default": "true"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "ItalicTextComponent",
+          "file_name": "ItalicText.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Makes the text in one or more shapes italic. The Slides counterpart of DocsConnect's Italic Text.",
+          "inputs": [
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Italic",
+              "nickname": "I",
+              "type": "bool",
+              "access": "list",
+              "default": "true"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "UnderlineTextComponent",
+          "file_name": "UnderlineText.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Underlines the text in one or more shapes. The Slides counterpart of DocsConnect's Underline Text.",
+          "inputs": [
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Underline",
+              "nickname": "U",
+              "type": "bool",
+              "access": "list",
+              "default": "true"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "StrikethroughTextComponent",
+          "file_name": "StrikethroughText.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Strikes through the text in one or more shapes. The Slides counterpart of DocsConnect's Strikethrough Text.",
+          "inputs": [
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Strikethrough",
+              "nickname": "SK",
+              "type": "bool",
+              "access": "list",
+              "default": "true"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "FontSizeTextComponent",
+          "file_name": "FontSizeText.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Sets the font size of the text in one or more shapes. The Slides counterpart of DocsConnect's Font Size Text.",
+          "inputs": [
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Font Size",
+              "nickname": "FS",
+              "type": "double",
+              "access": "list",
+              "default": "18"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "FontFamilyTextComponent",
+          "file_name": "FontFamilyText.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Sets the font family of the text in one or more shapes. The Slides counterpart of DocsConnect's Font Family Text.",
+          "inputs": [
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Font Family",
+              "nickname": "FF",
+              "type": "string",
+              "access": "list",
+              "default": "Arial"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "TextColorTextComponent",
+          "file_name": "TextColorText.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Sets the colour of the text in one or more shapes. The Slides counterpart of DocsConnect's Text Color Text.",
+          "inputs": [
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Text Color",
+              "nickname": "FC",
+              "type": "colour",
+              "access": "list",
+              "default": "",
+              "optional": true
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "HighlightTextComponent",
+          "file_name": "HighlightText.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Puts a highlight colour behind the text in one or more shapes. The Slides counterpart of DocsConnect's Highlight Text.",
+          "inputs": [
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Highlight",
+              "nickname": "HC",
+              "type": "colour",
+              "access": "list",
+              "default": "",
+              "optional": true
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "LinkTextComponent",
+          "file_name": "LinkText.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Turns the text in one or more shapes into a hyperlink. The Slides counterpart of DocsConnect's Link Text.",
+          "inputs": [
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "URL",
+              "nickname": "LK",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "BaselineTextComponent",
+          "file_name": "BaselineText.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Raises or lowers the text in one or more shapes (superscript / subscript). The Slides counterpart of DocsConnect's Baseline Text.",
+          "inputs": [
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Baseline",
+              "nickname": "BL",
+              "type": "string",
+              "access": "list",
+              "default": "SUPERSCRIPT"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "AlignedTextComponent",
+          "file_name": "AlignedText.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Sets the paragraph alignment of the text in one or more shapes. The Slides counterpart of DocsConnect's Aligned Text.",
+          "inputs": [
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Alignment",
+              "nickname": "AL",
+              "type": "string",
+              "access": "list",
+              "default": "CENTER"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "LineSpacingTextComponent",
+          "file_name": "LineSpacingText.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Sets the line spacing of the paragraphs in one or more shapes. The Slides counterpart of DocsConnect's Line Spacing Text.",
+          "inputs": [
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Line Spacing",
+              "nickname": "LS",
+              "type": "double",
+              "access": "list",
+              "default": "115"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "IndentTextComponent",
+          "file_name": "IndentText.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Indents the paragraphs in one or more shapes. The Slides counterpart of DocsConnect's Indent Text.",
+          "inputs": [
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Indent",
+              "nickname": "IN",
+              "type": "double",
+              "access": "list",
+              "default": "18"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "SpaceAboveTextComponent",
+          "file_name": "SpaceAboveText.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Adds space above the paragraphs in one or more shapes. The Slides counterpart of DocsConnect's Space Above Text.",
+          "inputs": [
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Space Above",
+              "nickname": "SA",
+              "type": "double",
+              "access": "list",
+              "default": "6"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "SpaceBelowTextComponent",
+          "file_name": "SpaceBelowText.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Adds space below the paragraphs in one or more shapes. The Slides counterpart of DocsConnect's Space Below Text.",
+          "inputs": [
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Space Below",
+              "nickname": "SB",
+              "type": "double",
+              "access": "list",
+              "default": "6"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Tables",
+      "type": "json",
+      "components": [
+        {
+          "class_name": "CreateTableComponent",
+          "file_name": "CreateTable.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Builds createTable requests for one or more tables. Object ID is auto-generated (EnsureId) when blank and resolved back out.",
+          "inputs": [
+            {
+              "name": "Slide ID",
+              "nickname": "SID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Rows",
+              "nickname": "RW",
+              "type": "int",
+              "access": "list",
+              "default": "2"
+            },
+            {
+              "name": "Columns",
+              "nickname": "CL",
+              "type": "int",
+              "access": "list",
+              "default": "2"
+            },
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            },
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "DataTreeToTableComponent",
+          "file_name": "DataTreeToTable.cs",
+          "type": "component",
+          "role": "feature",
+          "aec_feature": true,
+          "description": "Builds a CreateTable request plus one InsertText request per populated cell from a Grasshopper data tree; optional header-row coloring. Emits the full request sequence as a list.",
+          "inputs": [
+            {
+              "name": "Slide ID",
+              "nickname": "SID",
+              "type": "string",
+              "access": "item",
+              "default": ""
+            },
+            {
+              "name": "Data",
+              "nickname": "DA",
+              "type": "string",
+              "access": "tree",
+              "default": ""
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "TableCellStyleComponent",
+          "file_name": "TableCellStyle.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Sets the fill colour and/or vertical content alignment of a range of cells in an existing table.",
+          "inputs": [
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Row",
+              "nickname": "R",
+              "type": "int",
+              "access": "list",
+              "default": "-1",
+              "optional": true
+            },
+            {
+              "name": "Column",
+              "nickname": "CL",
+              "type": "int",
+              "access": "list",
+              "default": "-1",
+              "optional": true
+            },
+            {
+              "name": "Row Span",
+              "nickname": "RS",
+              "type": "int",
+              "access": "list",
+              "default": "1",
+              "optional": true
+            },
+            {
+              "name": "Column Span",
+              "nickname": "CS",
+              "type": "int",
+              "access": "list",
+              "default": "1",
+              "optional": true
+            },
+            {
+              "name": "Fill Color",
+              "nickname": "C",
+              "type": "colour",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Content Alignment",
+              "nickname": "CA",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "TableBordersComponent",
+          "file_name": "TableBorders.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Sets border colour, weight and/or dash on one side (or all) of a range of cells in an existing table.",
+          "inputs": [
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Row",
+              "nickname": "R",
+              "type": "int",
+              "access": "list",
+              "default": "-1",
+              "optional": true
+            },
+            {
+              "name": "Column",
+              "nickname": "CL",
+              "type": "int",
+              "access": "list",
+              "default": "-1",
+              "optional": true
+            },
+            {
+              "name": "Row Span",
+              "nickname": "RS",
+              "type": "int",
+              "access": "list",
+              "default": "1",
+              "optional": true
+            },
+            {
+              "name": "Column Span",
+              "nickname": "CS",
+              "type": "int",
+              "access": "list",
+              "default": "1",
+              "optional": true
+            },
+            {
+              "name": "Border Position",
+              "nickname": "BP",
+              "type": "string",
+              "access": "list",
+              "default": "ALL",
+              "optional": true
+            },
+            {
+              "name": "Border Color",
+              "nickname": "BC",
+              "type": "colour",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Border Weight",
+              "nickname": "BW",
+              "type": "double",
+              "access": "list",
+              "default": "0",
+              "optional": true
+            },
+            {
+              "name": "Border Dash",
+              "nickname": "BD",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Unit",
+              "nickname": "U",
+              "type": "string",
+              "access": "list",
+              "default": "pt",
+              "optional": true
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "MergeCellsComponent",
+          "file_name": "MergeCells.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Merges (or unmerges) a rectangular range of cells in an existing table.",
+          "inputs": [
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Row",
+              "nickname": "R",
+              "type": "int",
+              "access": "list",
+              "default": "0",
+              "optional": true
+            },
+            {
+              "name": "Column",
+              "nickname": "CL",
+              "type": "int",
+              "access": "list",
+              "default": "0",
+              "optional": true
+            },
+            {
+              "name": "Row Span",
+              "nickname": "RS",
+              "type": "int",
+              "access": "list",
+              "default": "1",
+              "optional": true
+            },
+            {
+              "name": "Column Span",
+              "nickname": "CS",
+              "type": "int",
+              "access": "list",
+              "default": "2",
+              "optional": true
+            },
+            {
+              "name": "Unmerge",
+              "nickname": "UM",
+              "type": "bool",
+              "access": "list",
+              "default": "false",
+              "optional": true
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "TableColumnWidthComponent",
+          "file_name": "TableColumnWidth.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Sets table column widths — one updateTableColumnProperties request per record (Object ID, Column Index, Width, Unit index-matched); a single Width broadcasts across every listed column.",
+          "inputs": [
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Column Index",
+              "nickname": "CI",
+              "type": "int",
+              "access": "list",
+              "default": "0"
+            },
+            {
+              "name": "Width",
+              "nickname": "W",
+              "type": "double",
+              "access": "list",
+              "default": "1.5"
+            },
+            {
+              "name": "Unit",
+              "nickname": "U",
+              "type": "string",
+              "access": "list",
+              "default": "in"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Insert",
+      "type": "json",
+      "components": [
+        {
+          "class_name": "GetImageUrlComponent",
+          "file_name": "GetImageUrl.cs",
+          "type": "component",
+          "role": "button",
+          "description": "Resolves images to the public URLs Create Image / Replace Image / Build Slides From Layout need. URL records pass through unchanged; Bitmap and local File Path records are uploaded to the user's Google Drive (multipart upload + anyone-reader permission) and returned as a link-public https://drive.google.com/uc?id= URL. List access so Capture Rhino View / Capture Camera View's File Path list becomes a URL list, one per slide. Priority per record: URL > Bitmap > File Path. Requires the drive.file OAuth scope in addition to presentations. Ported from DocsConnect/SheetsConnect's Get Image URL.",
+          "inputs": [
+            {
+              "name": "Token",
+              "nickname": "T",
+              "type": "string",
+              "access": "item",
+              "default": ""
+            },
+            {
+              "name": "Bitmap",
+              "nickname": "BM",
+              "type": "generic",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "File Path",
+              "nickname": "FP",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "URL",
+              "nickname": "U",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Image URL",
+              "nickname": "IU",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "CreateImageComponent",
+          "file_name": "CreateImage.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Builds createImage requests for one or more images. Object ID is auto-generated (EnsureId) when blank and resolved back out. Width/Height/X/Y take real-world Unit (pt/in/mm/cm/m/ft) instead of raw EMU. Rotation (degrees, clockwise) is applied about the element's centre via RequestBuilders.RotatedTransform, so Rhino Shape Export's Rotation output wires straight in. Rotation, Flip X/Y and Skew X/Y compose into one transform about the element's centre (RequestBuilders.ElementTransform / Placement).",
+          "inputs": [
+            {
+              "name": "Slide ID",
+              "nickname": "SID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Image URL",
+              "nickname": "URL",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Width",
+              "nickname": "W",
+              "type": "double",
+              "access": "list",
+              "default": "3.0"
+            },
+            {
+              "name": "Height",
+              "nickname": "H",
+              "type": "double",
+              "access": "list",
+              "default": "3.0"
+            },
+            {
+              "name": "X",
+              "nickname": "X",
+              "type": "double",
+              "access": "list",
+              "default": "0"
+            },
+            {
+              "name": "Y",
+              "nickname": "Y",
+              "type": "double",
+              "access": "list",
+              "default": "0"
+            },
+            {
+              "name": "Unit",
+              "nickname": "U",
+              "type": "string",
+              "access": "list",
+              "default": "in"
+            },
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Rotation",
+              "nickname": "RO",
+              "type": "double",
+              "access": "list",
+              "default": "0"
+            },
+            {
+              "name": "Flip X",
+              "nickname": "FX",
+              "type": "bool",
+              "access": "list",
+              "default": "false"
+            },
+            {
+              "name": "Flip Y",
+              "nickname": "FY",
+              "type": "bool",
+              "access": "list",
+              "default": "false"
+            },
+            {
+              "name": "Skew X",
+              "nickname": "KX",
+              "type": "double",
+              "access": "list",
+              "default": "0"
+            },
+            {
+              "name": "Skew Y",
+              "nickname": "KY",
+              "type": "double",
+              "access": "list",
+              "default": "0"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            },
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "CaptureCameraViewComponent",
+          "file_name": "CaptureCameraView.cs",
+          "type": "component",
+          "role": "button",
+          "aec_feature": true,
+          "description": "AEC: repositions the Rhino viewport camera from a Plane (origin = camera location, Z axis = view direction, Y axis = up) and captures a PNG per plane — e.g. one per floor, 'sliding' the camera up a building. Unlike Capture Rhino View (which only switches between pre-named, already-framed viewports), this one moves the camera itself before each shot via RhinoViewport.SetCameraLocation/SetCameraDirection/CameraUp and ChangeToParallelProjection/ChangeToPerspectiveProjection (signatures confirmed via reflection against the actual referenced RhinoCommon.dll — 7.0.20314.3001 and 8.0.23304.9001 — not guessed). Does not upload anywhere — host the files yourself and feed the resulting URLs into Create Image / Build Slides From Layout. Icon not yet generated (null). Restore View (default true) wraps the series in RhinoViewport.PushViewProjection/PopViewProjection so the user's camera and projection come back afterwards.",
+          "inputs": [
+            {
+              "name": "Camera Plane",
+              "nickname": "CP",
+              "type": "plane",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Projection",
+              "nickname": "PR",
+              "type": "string",
+              "access": "list",
+              "default": "Perspective",
+              "optional": true
+            },
+            {
+              "name": "View Name",
+              "nickname": "VN",
+              "type": "string",
+              "access": "item",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "File Path",
+              "nickname": "FP",
+              "type": "string",
+              "access": "list",
+              "default": "",
+              "optional": true
+            },
+            {
+              "name": "Width",
+              "nickname": "W",
+              "type": "int",
+              "access": "list",
+              "default": "0"
+            },
+            {
+              "name": "Height",
+              "nickname": "H",
+              "type": "int",
+              "access": "list",
+              "default": "0"
+            },
+            {
+              "name": "Restore View",
+              "nickname": "RV",
+              "type": "bool",
+              "access": "item",
+              "default": "true"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "File Path",
+              "nickname": "FP",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        },
+        {
+          "class_name": "ReplaceImageComponent",
+          "file_name": "ReplaceImage.cs",
+          "type": "component",
+          "role": "unit",
+          "description": "Builds replaceImage requests: swaps the image content of one or more EXISTING image/picture-placeholder elements (e.g. Create Slide's Picture Object ID output) with a new image URL. Different from Create Image, which places a brand new image element. Icon not yet generated (null).",
+          "inputs": [
+            {
+              "name": "Object ID",
+              "nickname": "OID",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            },
+            {
+              "name": "Image URL",
+              "nickname": "URL",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Aggregate",
+      "type": "json",
+      "components": [
+        {
+          "class_name": "RequestsAggregatorComponent",
+          "file_name": "RequestsAggregator.cs",
+          "type": "component",
+          "role": "aggregator",
+          "inputs": [
+            {
+              "name": "Request JSON",
+              "nickname": "RQ",
+              "type": "string",
+              "access": "list",
+              "default": ""
+            }
+          ],
+          "outputs": [
+            {
+              "name": "Requests JSON",
+              "nickname": "RQS",
+              "type": "string",
+              "access": "list"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Presets",
+      "type": "preset",
+      "components": [
+        {
+          "class_name": "ShapeTypePresetComponent",
+          "file_name": "ShapeTypePreset.cs",
+          "type": "preset",
+          "role": "preset",
+          "outputs": [
+            {
+              "name": "Shape Type",
+              "nickname": "ST",
+              "type": "string",
+              "access": "item"
+            }
+          ],
+          "values": [
+            "TEXT_BOX",
+            "RECTANGLE",
+            "ROUND_RECTANGLE",
+            "ELLIPSE",
+            "ARC",
+            "BEVEL",
+            "BLOCK_ARC",
+            "CAN",
+            "CHEVRON",
+            "CHORD",
+            "CLOUD",
+            "CORNER",
+            "CUBE",
+            "DECAGON",
+            "DIAGONAL_STRIPE",
+            "DIAMOND",
+            "DODECAGON",
+            "DONUT",
+            "DOUBLE_WAVE",
+            "FOLDED_CORNER",
+            "FRAME",
+            "HALF_FRAME",
+            "HEART",
+            "HEPTAGON",
+            "HEXAGON",
+            "HOME_PLATE",
+            "IRREGULAR_SEAL_1",
+            "IRREGULAR_SEAL_2",
+            "LIGHTNING_BOLT",
+            "MOON",
+            "NO_SMOKING",
+            "OCTAGON",
+            "PARALLELOGRAM",
+            "PENTAGON",
+            "PIE",
+            "PLAQUE",
+            "PLUS",
+            "ROUND_1_RECTANGLE",
+            "ROUND_2_DIAGONAL_RECTANGLE",
+            "ROUND_2_SAME_RECTANGLE",
+            "RIGHT_TRIANGLE",
+            "SMILEY_FACE",
+            "SNIP_1_RECTANGLE",
+            "SNIP_2_DIAGONAL_RECTANGLE",
+            "SNIP_2_SAME_RECTANGLE",
+            "SNIP_ROUND_RECTANGLE",
+            "SUN",
+            "TRAPEZOID",
+            "TRIANGLE",
+            "WAVE",
+            "SPEECH",
+            "TEARDROP",
+            "BENT_ARROW",
+            "BENT_UP_ARROW",
+            "CURVED_DOWN_ARROW",
+            "CURVED_LEFT_ARROW",
+            "CURVED_RIGHT_ARROW",
+            "CURVED_UP_ARROW",
+            "DOWN_ARROW",
+            "LEFT_ARROW",
+            "LEFT_RIGHT_ARROW",
+            "LEFT_RIGHT_UP_ARROW",
+            "LEFT_UP_ARROW",
+            "NOTCHED_RIGHT_ARROW",
+            "QUAD_ARROW",
+            "RIGHT_ARROW",
+            "STRIPED_RIGHT_ARROW",
+            "UP_ARROW",
+            "UP_DOWN_ARROW",
+            "UTURN_ARROW",
+            "ARROW_EAST",
+            "ARROW_NORTH_EAST",
+            "ARROW_NORTH",
+            "STAR_10",
+            "STAR_12",
+            "STAR_16",
+            "STAR_24",
+            "STAR_32",
+            "STAR_4",
+            "STAR_5",
+            "STAR_6",
+            "STAR_7",
+            "STAR_8",
+            "STARBURST",
+            "DOWN_ARROW_CALLOUT",
+            "LEFT_ARROW_CALLOUT",
+            "LEFT_RIGHT_ARROW_CALLOUT",
+            "QUAD_ARROW_CALLOUT",
+            "RIGHT_ARROW_CALLOUT",
+            "UP_ARROW_CALLOUT",
+            "WEDGE_ELLIPSE_CALLOUT",
+            "WEDGE_RECTANGLE_CALLOUT",
+            "WEDGE_ROUND_RECTANGLE_CALLOUT",
+            "CLOUD_CALLOUT",
+            "HORIZONTAL_SCROLL",
+            "RIBBON",
+            "RIBBON_2",
+            "VERTICAL_SCROLL",
+            "ELLIPSE_RIBBON",
+            "ELLIPSE_RIBBON_2",
+            "BRACE_PAIR",
+            "BRACKET_PAIR",
+            "LEFT_BRACE",
+            "LEFT_BRACKET",
+            "RIGHT_BRACE",
+            "RIGHT_BRACKET",
+            "MATH_DIVIDE",
+            "MATH_EQUAL",
+            "MATH_MINUS",
+            "MATH_MULTIPLY",
+            "MATH_NOT_EQUAL",
+            "MATH_PLUS",
+            "FLOW_CHART_ALTERNATE_PROCESS",
+            "FLOW_CHART_COLLATE",
+            "FLOW_CHART_CONNECTOR",
+            "FLOW_CHART_DECISION",
+            "FLOW_CHART_DELAY",
+            "FLOW_CHART_DISPLAY",
+            "FLOW_CHART_DOCUMENT",
+            "FLOW_CHART_EXTRACT",
+            "FLOW_CHART_INPUT_OUTPUT",
+            "FLOW_CHART_INTERNAL_STORAGE",
+            "FLOW_CHART_MAGNETIC_DISK",
+            "FLOW_CHART_MAGNETIC_DRUM",
+            "FLOW_CHART_MAGNETIC_TAPE",
+            "FLOW_CHART_MANUAL_INPUT",
+            "FLOW_CHART_MANUAL_OPERATION",
+            "FLOW_CHART_MERGE",
+            "FLOW_CHART_MULTIDOCUMENT",
+            "FLOW_CHART_OFFLINE_STORAGE",
+            "FLOW_CHART_OFFPAGE_CONNECTOR",
+            "FLOW_CHART_ONLINE_STORAGE",
+            "FLOW_CHART_OR",
+            "FLOW_CHART_PREDEFINED_PROCESS",
+            "FLOW_CHART_PREPARATION",
+            "FLOW_CHART_PROCESS",
+            "FLOW_CHART_PUNCHED_CARD",
+            "FLOW_CHART_PUNCHED_TAPE",
+            "FLOW_CHART_SORT",
+            "FLOW_CHART_SUMMING_JUNCTION",
+            "FLOW_CHART_TERMINATOR"
+          ],
+          "inputs": [],
+          "description": "Value-list of every Google Slides Shape.Type enum value (141, verified against the API reference 2026-09-15), grouped basic / arrows / stars / callouts / ribbons / braces / math / flow chart."
+        },
+        {
+          "class_name": "PredefinedLayoutPresetComponent",
+          "file_name": "PredefinedLayoutPreset.cs",
+          "type": "preset",
+          "role": "preset",
+          "outputs": [
+            {
+              "name": "Layout",
+              "nickname": "LO",
+              "type": "string",
+              "access": "item"
+            }
+          ],
+          "values": [
+            "BLANK",
+            "TITLE",
+            "TITLE_AND_BODY",
+            "TITLE_ONLY",
+            "SECTION_HEADER",
+            "SECTION_TITLE_AND_DESCRIPTION",
+            "ONE_COLUMN_TEXT",
+            "MAIN_POINT",
+            "CAPTION_ONLY",
+            "BIG_NUMBER"
+          ],
+          "inputs": []
+        },
+        {
+          "class_name": "AlignmentPresetComponent",
+          "file_name": "AlignmentPreset.cs",
+          "type": "preset",
+          "role": "preset",
+          "description": "Paragraph alignment values for Styled Paragraph / Aligned Text / Styled Text Box.",
+          "values": [
+            "START",
+            "CENTER",
+            "END",
+            "JUSTIFIED"
+          ]
+        },
+        {
+          "class_name": "FontFamilyPresetComponent",
+          "file_name": "FontFamilyPreset.cs",
+          "type": "preset",
+          "role": "preset",
+          "description": "Curated shortcut list of common font families for Styled Text / Font Family Text — not a closed list, any Google Fonts name can be typed directly.",
+          "values": [
+            "Arial",
+            "Calibri",
+            "Times New Roman",
+            "Georgia",
+            "Verdana",
+            "Courier New",
+            "Garamond",
+            "Trebuchet MS",
+            "Roboto",
+            "Open Sans"
+          ]
+        },
+        {
+          "class_name": "BulletPresetComponent",
+          "file_name": "BulletPreset.cs",
+          "type": "preset",
+          "role": "preset",
+          "description": "Bullet / numbering preset values for Bullet List / Styled Text Box (Google Slides BulletGlyphPreset names).",
+          "values": [
+            "BULLET_DISC_CIRCLE_SQUARE",
+            "BULLET_DIAMONDX_ARROW3D_SQUARE",
+            "BULLET_CHECKBOX",
+            "BULLET_ARROW_DIAMOND_DISC",
+            "BULLET_STAR_CIRCLE_SQUARE",
+            "BULLET_ARROW3D_CIRCLE_SQUARE",
+            "NUMBERED_DIGIT_ALPHA_ROMAN",
+            "NUMBERED_DIGIT_ALPHA_ROMAN_PARENS",
+            "NUMBERED_DIGIT_NESTED",
+            "NUMBERED_UPPERALPHA_ALPHA_ROMAN",
+            "NUMBERED_UPPERROMAN_UPPERALPHA_DIGIT",
+            "NONE"
+          ]
+        },
+        {
+          "class_name": "DashStylePresetComponent",
+          "file_name": "DashStylePreset.cs",
+          "type": "preset",
+          "role": "preset",
+          "description": "Line dash values for Shape Outline / Table Borders.",
+          "values": [
+            "SOLID",
+            "DOT",
+            "DASH",
+            "DASH_DOT",
+            "LONG_DASH",
+            "LONG_DASH_DOT"
+          ]
+        },
+        {
+          "class_name": "BorderPositionPresetComponent",
+          "file_name": "BorderPositionPreset.cs",
+          "type": "preset",
+          "role": "preset",
+          "description": "Which borders of a table range Table Borders styles.",
+          "values": [
+            "ALL",
+            "OUTER",
+            "INNER",
+            "INNER_HORIZONTAL",
+            "INNER_VERTICAL",
+            "TOP",
+            "BOTTOM",
+            "LEFT",
+            "RIGHT"
+          ]
+        },
+        {
+          "class_name": "ContentAlignmentPresetComponent",
+          "file_name": "ContentAlignmentPreset.cs",
+          "type": "preset",
+          "role": "preset",
+          "description": "Vertical text alignment values for Shape Text Fit / Table Cell Style / Styled Text Box.",
+          "values": [
+            "TOP",
+            "MIDDLE",
+            "BOTTOM"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Utilities",
+      "type": "util",
+      "components": [
+        {
+          "class_name": "SlidesConnectClient",
+          "file_name": "SlidesConnectClient.cs",
+          "type": "infrastructure",
+          "role": "client",
+          "inputs": []
+        },
+        {
+          "class_name": "PluginUtilities",
+          "file_name": "PluginUtilities.cs",
+          "type": "infrastructure",
+          "role": "utilities",
+          "inputs": []
+        },
+        {
+          "class_name": "ButtonComponent",
+          "file_name": "ButtonComponent.cs",
+          "type": "infrastructure",
+          "role": "base",
+          "inputs": []
+        }
+      ]
+    }
+  ],
+  "builders": [
+    {
+      "file_name": "RequestBuilders.cs",
+      "covers": [
+        "BatchUpdateRequest"
+      ],
+      "used_by": [
+        "CreateSlideComponent",
+        "UpdateSlidePropertiesComponent",
+        "DeleteSlideComponent",
+        "CreateShapeComponent",
+        "UpdateShapePropertiesComponent",
+        "UpdateShapeTransformComponent",
+        "InsertTextComponent",
+        "ReplaceAllTextComponent",
+        "UpdateTextStyleComponent",
+        "UpdateParagraphStyleComponent",
+        "CreateTableComponent",
+        "DataTreeToTableComponent",
+        "CreateImageComponent"
+      ]
+    },
+    {
+      "file_name": "GeometryBuilders.cs",
+      "covers": [
+        "EmuConversion"
+      ],
+      "used_by": [
+        "RhinoShapeExportComponent",
+        "DataTreeToTableComponent"
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "from": "RhinoShapeExportComponent.X",
+      "to": "CreateShapeComponent.X",
+      "nickname": "X",
+      "access": "list→list"
+    },
+    {
+      "from": "RhinoShapeExportComponent.Y",
+      "to": "CreateShapeComponent.Y",
+      "nickname": "Y",
+      "access": "list→list"
+    },
+    {
+      "from": "RhinoShapeExportComponent.Width",
+      "to": "CreateShapeComponent.Width",
+      "nickname": "W",
+      "access": "list→list"
+    },
+    {
+      "from": "RhinoShapeExportComponent.Height",
+      "to": "CreateShapeComponent.Height",
+      "nickname": "H",
+      "access": "list→list"
+    },
+    {
+      "from": "RhinoShapeExportComponent.X",
+      "to": "CreateImageComponent.X",
+      "nickname": "X",
+      "access": "list→list"
+    },
+    {
+      "from": "RhinoShapeExportComponent.Y",
+      "to": "CreateImageComponent.Y",
+      "nickname": "Y",
+      "access": "list→list"
+    },
+    {
+      "from": "RhinoShapeExportComponent.Width",
+      "to": "CreateImageComponent.Width",
+      "nickname": "W",
+      "access": "list→list"
+    },
+    {
+      "from": "RhinoShapeExportComponent.Height",
+      "to": "CreateImageComponent.Height",
+      "nickname": "H",
+      "access": "list→list"
+    },
+    {
+      "from": "RhinoShapeExportComponent.X",
+      "to": "UpdateShapeTransformComponent.X",
+      "nickname": "X",
+      "access": "list→list"
+    },
+    {
+      "from": "RhinoShapeExportComponent.Y",
+      "to": "UpdateShapeTransformComponent.Y",
+      "nickname": "Y",
+      "access": "list→list"
+    },
+    {
+      "from": "RhinoShapeExportComponent.Rotation",
+      "to": "UpdateShapeTransformComponent.Rotation",
+      "nickname": "RO",
+      "access": "list→list"
+    },
+    {
+      "from": "ShapeTypePresetComponent.Shape Type",
+      "to": "CreateShapeComponent.Shape Type",
+      "nickname": "ST",
+      "access": "item→list"
+    },
+    {
+      "from": "PredefinedLayoutPresetComponent.Layout",
+      "to": "CreateSlideComponent.Layout",
+      "nickname": "LO",
+      "access": "item→list"
+    },
+    {
+      "from": "CreateSlideComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "UpdateSlidePropertiesComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "DeleteSlideComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateShapeComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "UpdateShapePropertiesComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "UpdateShapeTransformComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "InsertTextComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "ReplaceAllTextComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "UpdateTextStyleComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "UpdateParagraphStyleComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateTableComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "DataTreeToTableComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateImageComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "RequestsAggregatorComponent.Requests JSON",
+      "to": "BatchUpdateComponent.Requests JSON",
+      "nickname": "RQS",
+      "access": "list→list"
+    },
+    {
+      "from": "CreatePresentationComponent.Presentation ID",
+      "to": "BatchUpdateComponent.Presentation ID",
+      "nickname": "PID",
+      "access": "item→item"
+    },
+    {
+      "from": "CreatePresentationComponent.Presentation ID",
+      "to": "GetPresentationComponent.Presentation ID",
+      "nickname": "PID",
+      "access": "item→item"
+    },
+    {
+      "from": "CreatePresentationComponent.Presentation ID",
+      "to": "GetSlideComponent.Presentation ID",
+      "nickname": "PID",
+      "access": "item→item"
+    },
+    {
+      "from": "CreateSlideComponent.Slide ID",
+      "to": "CreateShapeComponent.Slide ID",
+      "nickname": "SID",
+      "access": "list→list",
+      "note": "The new-slide-fan-out pattern: the same resolved Slide ID list targets content onto the slide(s) just created in the same batch."
+    },
+    {
+      "from": "CreateSlideComponent.Slide ID",
+      "to": "CreateImageComponent.Slide ID",
+      "nickname": "SID",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateSlideComponent.Slide ID",
+      "to": "CreateTableComponent.Slide ID",
+      "nickname": "SID",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateShapeComponent.Object ID",
+      "to": "UpdateShapePropertiesComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateShapeComponent.Object ID",
+      "to": "InsertTextComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "CaptureCameraViewComponent.File Path",
+      "to": "GetImageUrlComponent.File Path",
+      "nickname": "FP",
+      "access": "list→list"
+    },
+    {
+      "from": "GetImageUrlComponent.Image URL",
+      "to": "CreateImageComponent.Image URL",
+      "nickname": "IU→URL",
+      "access": "list→list"
+    },
+    {
+      "from": "GetImageUrlComponent.Image URL",
+      "to": "ReplaceImageComponent.Image URL",
+      "nickname": "IU→URL",
+      "access": "list→list"
+    },
+    {
+      "from": "GetImageUrlComponent.Image URL",
+      "to": "BuildSlidesFromLayoutComponent.Photo URL",
+      "nickname": "IU→URL",
+      "access": "list→list"
+    },
+    {
+      "from": "RhinoShapeExportComponent.Unit",
+      "to": "CreateShapeComponent.Unit",
+      "nickname": "U",
+      "access": "list→list"
+    },
+    {
+      "from": "RhinoShapeExportComponent.Unit",
+      "to": "CreateImageComponent.Unit",
+      "nickname": "U",
+      "access": "list→list"
+    },
+    {
+      "from": "RhinoShapeExportComponent.Unit",
+      "to": "UpdateShapeTransformComponent.Unit",
+      "nickname": "U",
+      "access": "list→list"
+    },
+    {
+      "from": "StyledTextBoxComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateShapeComponent.Object ID",
+      "to": "UpdateTextStyleComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "StyledTextBoxComponent.Object ID",
+      "to": "UpdateTextStyleComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateShapeComponent.Object ID",
+      "to": "UpdateParagraphStyleComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "StyledTextBoxComponent.Object ID",
+      "to": "UpdateParagraphStyleComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "BulletListComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateShapeComponent.Object ID",
+      "to": "BulletListComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "StyledTextBoxComponent.Object ID",
+      "to": "BulletListComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "StyledTextBoxComponent.Object ID",
+      "to": "UpdateShapePropertiesComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "TableCellStyleComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateTableComponent.Object ID",
+      "to": "TableCellStyleComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "TableBordersComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateTableComponent.Object ID",
+      "to": "TableBordersComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "MergeCellsComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateTableComponent.Object ID",
+      "to": "MergeCellsComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "TableColumnWidthComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateTableComponent.Object ID",
+      "to": "TableColumnWidthComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateSlideComponent.Slide ID",
+      "to": "StyledTextBoxComponent.Slide ID",
+      "nickname": "SID",
+      "access": "list→list"
+    },
+    {
+      "from": "BoldTextComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateShapeComponent.Object ID",
+      "to": "BoldTextComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "StyledTextBoxComponent.Object ID",
+      "to": "BoldTextComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "ItalicTextComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateShapeComponent.Object ID",
+      "to": "ItalicTextComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "StyledTextBoxComponent.Object ID",
+      "to": "ItalicTextComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "UnderlineTextComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateShapeComponent.Object ID",
+      "to": "UnderlineTextComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "StyledTextBoxComponent.Object ID",
+      "to": "UnderlineTextComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "StrikethroughTextComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateShapeComponent.Object ID",
+      "to": "StrikethroughTextComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "StyledTextBoxComponent.Object ID",
+      "to": "StrikethroughTextComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "FontSizeTextComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateShapeComponent.Object ID",
+      "to": "FontSizeTextComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "StyledTextBoxComponent.Object ID",
+      "to": "FontSizeTextComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "FontFamilyTextComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateShapeComponent.Object ID",
+      "to": "FontFamilyTextComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "StyledTextBoxComponent.Object ID",
+      "to": "FontFamilyTextComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "TextColorTextComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateShapeComponent.Object ID",
+      "to": "TextColorTextComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "StyledTextBoxComponent.Object ID",
+      "to": "TextColorTextComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "HighlightTextComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateShapeComponent.Object ID",
+      "to": "HighlightTextComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "StyledTextBoxComponent.Object ID",
+      "to": "HighlightTextComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "LinkTextComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateShapeComponent.Object ID",
+      "to": "LinkTextComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "StyledTextBoxComponent.Object ID",
+      "to": "LinkTextComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "BaselineTextComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateShapeComponent.Object ID",
+      "to": "BaselineTextComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "StyledTextBoxComponent.Object ID",
+      "to": "BaselineTextComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "AlignedTextComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateShapeComponent.Object ID",
+      "to": "AlignedTextComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "StyledTextBoxComponent.Object ID",
+      "to": "AlignedTextComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "LineSpacingTextComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateShapeComponent.Object ID",
+      "to": "LineSpacingTextComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "StyledTextBoxComponent.Object ID",
+      "to": "LineSpacingTextComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "IndentTextComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateShapeComponent.Object ID",
+      "to": "IndentTextComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "StyledTextBoxComponent.Object ID",
+      "to": "IndentTextComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "SpaceAboveTextComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateShapeComponent.Object ID",
+      "to": "SpaceAboveTextComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "StyledTextBoxComponent.Object ID",
+      "to": "SpaceAboveTextComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "SpaceBelowTextComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateShapeComponent.Object ID",
+      "to": "SpaceBelowTextComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "StyledTextBoxComponent.Object ID",
+      "to": "SpaceBelowTextComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "ShapeFillComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateShapeComponent.Object ID",
+      "to": "ShapeFillComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "StyledTextBoxComponent.Object ID",
+      "to": "ShapeFillComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "ShapeOutlineComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateShapeComponent.Object ID",
+      "to": "ShapeOutlineComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "StyledTextBoxComponent.Object ID",
+      "to": "ShapeOutlineComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "ShapeShadowComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateShapeComponent.Object ID",
+      "to": "ShapeShadowComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "StyledTextBoxComponent.Object ID",
+      "to": "ShapeShadowComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "ShapeLinkComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateShapeComponent.Object ID",
+      "to": "ShapeLinkComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "StyledTextBoxComponent.Object ID",
+      "to": "ShapeLinkComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "ShapeTextFitComponent.Request JSON",
+      "to": "RequestsAggregatorComponent.Request JSON",
+      "nickname": "RQ",
+      "access": "list→list"
+    },
+    {
+      "from": "CreateShapeComponent.Object ID",
+      "to": "ShapeTextFitComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "StyledTextBoxComponent.Object ID",
+      "to": "ShapeTextFitComponent.Object ID",
+      "nickname": "OID",
+      "access": "list→list"
+    },
+    {
+      "from": "RhinoShapeExportComponent.Rotation",
+      "to": "CreateShapeComponent.Rotation",
+      "nickname": "RO",
+      "access": "list→list"
+    },
+    {
+      "from": "RhinoShapeExportComponent.Rotation",
+      "to": "CreateImageComponent.Rotation",
+      "nickname": "RO",
+      "access": "list→list"
+    }
+  ],
+  "payload_contracts": [
+    {
+      "resource": "Presentation",
+      "contract": {
+        "name": "Requests JSON",
+        "nickname": "RQS",
+        "access": "list"
+      },
+      "produced_by": "RequestsAggregatorComponent",
+      "consumed_by": [
+        "BatchUpdateComponent"
+      ],
+      "note": "Single write endpoint (batchUpdate). Every builder component now emits Request JSON as a list (one per record; ReplaceAllTextComponent is the one remaining item-in/list-fan-out exception); the aggregator collects them into the shared Requests JSON payload consumed by BatchUpdate."
+    },
+    {
+      "resource": "Object ID",
+      "contract": {
+        "name": "Object ID / Slide ID",
+        "nickname": "OID / SID",
+        "access": "list"
+      },
+      "produced_by": [
+        "CreateSlideComponent",
+        "CreateShapeComponent",
+        "CreateTableComponent",
+        "CreateImageComponent"
+      ],
+      "consumed_by": [
+        "CreateShapeComponent",
+        "CreateImageComponent",
+        "CreateTableComponent",
+        "InsertTextComponent",
+        "UpdateShapePropertiesComponent",
+        "UpdateShapeTransformComponent",
+        "UpdateTextStyleComponent",
+        "UpdateParagraphStyleComponent"
+      ],
+      "note": "Every creation-type builder resolves its Object ID via RequestBuilders.EnsureId (auto-generated when left blank) and outputs the resolved value on a companion list port, so the exact same ID can be threaded forward to target the object created earlier in the same batch. This is the load-bearing mechanism behind multi-slide / multi-shape parametric wiring."
+    }
+  ]
+}

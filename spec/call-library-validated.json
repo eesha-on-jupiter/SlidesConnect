@@ -1,0 +1,135 @@
+{
+  "_meta": {
+    "platform": "Google Slides",
+    "base_url": "https://slides.googleapis.com",
+    "validated_against": "live Google Slides API v1",
+    "validation_method": "curl with live OAuth access token (scope auth/presentations); api-tester run_all_tests reported false-FAILED due to harness gaps — see dogfood F3. Every entry confirmed HTTP 200 live.",
+    "seed_ids_used": {
+      "presentationId": "10EWhRF8h_38M98KBJm-umDiIvXDIBtJG7KAEJsgWv7I",
+      "pageObjectId": "p"
+    },
+    "common_query_params_omitted": ["$.xgafv", "access_token", "alt", "callback", "fields", "key", "oauth_token", "prettyPrint", "quotaUser", "upload_protocol", "uploadType"],
+    "note": "url_template is absolute (base_url folded in) so the client and api-tester can call it without a separate prepend. Universal Google system query params are optional and unused by the plugin — omitted here for clarity, listed above."
+  },
+  "entries": [
+    {
+      "endpoint_id": "auth_check",
+      "component": "SlidesConnectAuthComponent",
+      "method": "GET",
+      "url_template": "https://www.googleapis.com/oauth2/v3/tokeninfo",
+      "path_params": [],
+      "query_params": [
+        { "name": "access_token", "type": "string", "required": true }
+      ],
+      "auth_in": "query",
+      "headers": {},
+      "body_schema": null,
+      "response_schema": {
+        "azp": "string", "aud": "string", "scope": "string", "exp": "string",
+        "expires_in": "string", "access_type": "string", "email": "string"
+      },
+      "notes": "Token-validation probe (different host). Token goes in the access_token QUERY param, NOT the Authorization header. Returns granted scope(s) + expiry — used by the auth component to confirm a live token before Slides calls.",
+      "status": "VALIDATED",
+      "test_result": { "tag": "VALIDATED", "status_code": 200, "method": "curl", "evidence": "scope=auth/presentations, expires_in~2827s" }
+    },
+    {
+      "endpoint_id": "create_presentation",
+      "component": "CreatePresentationComponent",
+      "method": "POST",
+      "url_template": "https://slides.googleapis.com/v1/presentations",
+      "path_params": [],
+      "query_params": [],
+      "auth_in": "header",
+      "headers": { "Authorization": "Bearer {token}", "Content-Type": "application/json" },
+      "body_schema": { "title": "string" },
+      "body_note": "Only 'title' is honored on create; all other body fields (slides, layouts, pageSize, masters) are ignored by the API.",
+      "response_schema": {
+        "presentationId": "string", "title": "string", "revisionId": "string",
+        "pageSize": "object", "slides": "array", "masters": "array", "layouts": "array", "locale": "string"
+      },
+      "notes": "Creates a blank deck with one default slide (objectId 'p'). Returns presentationId — the seed for every other call.",
+      "status": "VALIDATED",
+      "test_result": { "tag": "VALIDATED", "status_code": 200, "method": "curl", "evidence": "presentationId=10EWhRF8h_38M98KBJm-umDiIvXDIBtJG7KAEJsgWv7I" }
+    },
+    {
+      "endpoint_id": "get_presentation",
+      "component": "GetPresentationComponent",
+      "method": "GET",
+      "url_template": "https://slides.googleapis.com/v1/presentations/{presentationId}",
+      "path_params": [
+        { "name": "presentationId", "type": "string", "required": true }
+      ],
+      "query_params": [],
+      "auth_in": "header",
+      "headers": { "Authorization": "Bearer {token}" },
+      "body_schema": null,
+      "response_schema": {
+        "presentationId": "string", "title": "string", "revisionId": "string",
+        "pageSize": "object", "slides": "array", "masters": "array", "layouts": "array", "locale": "string"
+      },
+      "notes": "Full presentation document including all slides and page elements.",
+      "status": "VALIDATED",
+      "test_result": { "tag": "VALIDATED", "status_code": 200, "method": "curl", "seed_ids": { "presentationId": "10EWhRF8h…" } }
+    },
+    {
+      "endpoint_id": "batch_update",
+      "component": "BatchUpdateComponent",
+      "method": "POST",
+      "url_template": "https://slides.googleapis.com/v1/presentations/{presentationId}:batchUpdate",
+      "path_params": [
+        { "name": "presentationId", "type": "string", "required": true }
+      ],
+      "query_params": [],
+      "auth_in": "header",
+      "headers": { "Authorization": "Bearer {token}", "Content-Type": "application/json" },
+      "body_schema": { "requests": "array", "writeControl": "object" },
+      "body_note": "requests[] is the heterogeneous array of request objects (createSlide, createShape, insertText, …). This is the single write endpoint the whole plugin composes toward.",
+      "response_schema": { "presentationId": "string", "replies": "array", "writeControl": "object" },
+      "notes": "replies[] aligns 1:1 with requests[]; createSlide/createShape replies carry the new objectId.",
+      "status": "VALIDATED",
+      "test_result": { "tag": "VALIDATED", "status_code": 200, "method": "curl", "evidence": "{\"requests\":[{\"createSlide\":{}}]} → reply objectId SLIDES_API1099482080_0" }
+    },
+    {
+      "endpoint_id": "get_page",
+      "component": "GetPageComponent",
+      "method": "GET",
+      "url_template": "https://slides.googleapis.com/v1/presentations/{presentationId}/pages/{pageObjectId}",
+      "path_params": [
+        { "name": "presentationId", "type": "string", "required": true },
+        { "name": "pageObjectId", "type": "string", "required": true }
+      ],
+      "query_params": [],
+      "auth_in": "header",
+      "headers": { "Authorization": "Bearer {token}" },
+      "body_schema": null,
+      "response_schema": {
+        "objectId": "string", "pageType": "string", "pageElements": "array",
+        "pageProperties": "object", "slideProperties": "object", "revisionId": "string"
+      },
+      "notes": "Single page/slide by objectId.",
+      "status": "VALIDATED",
+      "test_result": { "tag": "VALIDATED", "status_code": 200, "method": "curl", "seed_ids": { "presentationId": "10EWhRF8h…", "pageObjectId": "p" } }
+    },
+    {
+      "endpoint_id": "get_page_thumbnail",
+      "component": "GetPageThumbnailComponent",
+      "method": "GET",
+      "url_template": "https://slides.googleapis.com/v1/presentations/{presentationId}/pages/{pageObjectId}/thumbnail",
+      "path_params": [
+        { "name": "presentationId", "type": "string", "required": true },
+        { "name": "pageObjectId", "type": "string", "required": true }
+      ],
+      "query_params": [
+        { "name": "thumbnailProperties.thumbnailSize", "type": "string", "required": false, "values": ["LARGE", "MEDIUM", "SMALL"] },
+        { "name": "thumbnailProperties.mimeType", "type": "string", "required": false }
+      ],
+      "auth_in": "header",
+      "headers": { "Authorization": "Bearer {token}" },
+      "body_schema": null,
+      "response_schema": { "contentUrl": "string", "width": "integer", "height": "integer" },
+      "notes": "contentUrl is a short-lived (~30 min) public image URL of the rendered page.",
+      "status": "VALIDATED",
+      "test_result": { "tag": "VALIDATED", "status_code": 200, "method": "curl", "evidence": "800x450, contentUrl=https://lh7-us.googleusercontent.com/docsdf/…" }
+    }
+  ]
+}

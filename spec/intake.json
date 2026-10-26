@@ -1,0 +1,6 @@
+{
+  "plugin_name": "SlidesConnect",
+  "docs_url": "https://developers.google.com/slides/api/reference/rest",
+  "token_ready": false,
+  "token_note": "Token will be prepared and prompted for in Phase 7"
+}

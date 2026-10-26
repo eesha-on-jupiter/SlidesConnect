@@ -1,0 +1,493 @@
+[
+  {
+    "endpoint_id": "auth_check",
+    "component": "SlidesConnectAuthComponent",
+    "method": "GET",
+    "url_template": "https://www.googleapis.com/oauth2/v3/tokeninfo",
+    "path_params": [],
+    "query_params": [
+      {
+        "name": "access_token",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "headers": {},
+    "body_schema": null,
+    "response_schema": {
+      "azp": "string",
+      "aud": "string",
+      "sub": "string",
+      "scope": "string",
+      "exp": "string",
+      "expires_in": "string",
+      "email": "string",
+      "email_verified": "string",
+      "access_type": "string"
+    },
+    "example_request": {},
+    "example_response": {},
+    "notes": "OAuth token-validation probe (different host: oauth2 tokeninfo). NOT part of the Slides API surface; used by the auth component to confirm the access token is live and to surface its granted scopes. Manually added — not present in the Slides OpenAPI spec.",
+    "status": "EXTRACTED"
+  },
+  {
+    "endpoint_id": "create_presentation",
+    "component": "CreatePresentationComponent",
+    "method": "POST",
+    "url_template": "/v1/presentations",
+    "path_params": [],
+    "query_params": [
+      {
+        "name": "$.xgafv",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "access_token",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "alt",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "callback",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "fields",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "key",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "oauth_token",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "prettyPrint",
+        "type": "boolean",
+        "required": false
+      },
+      {
+        "name": "quotaUser",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "upload_protocol",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "uploadType",
+        "type": "string",
+        "required": false
+      }
+    ],
+    "headers": {
+      "Authorization": "Bearer {token}"
+    },
+    "body_schema": {
+      "layouts": "array",
+      "locale": "string",
+      "masters": "array",
+      "notesMaster": "object",
+      "pageSize": "object",
+      "presentationId": "string",
+      "revisionId": "string",
+      "slides": "array",
+      "title": "string"
+    },
+    "response_schema": {
+      "layouts": "array",
+      "locale": "string",
+      "masters": "array",
+      "notesMaster": "object",
+      "pageSize": "object",
+      "presentationId": "string",
+      "revisionId": "string",
+      "slides": "array",
+      "title": "string"
+    },
+    "example_request": {},
+    "example_response": {},
+    "notes": "",
+    "status": "EXTRACTED"
+  },
+  {
+    "endpoint_id": "get_presentation",
+    "component": "GetPresentationComponent",
+    "method": "GET",
+    "url_template": "/v1/presentations/{presentationId}",
+    "path_params": [
+      {
+        "name": "presentationId",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "query_params": [
+      {
+        "name": "$.xgafv",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "access_token",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "alt",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "callback",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "fields",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "key",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "oauth_token",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "prettyPrint",
+        "type": "boolean",
+        "required": false
+      },
+      {
+        "name": "quotaUser",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "upload_protocol",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "uploadType",
+        "type": "string",
+        "required": false
+      }
+    ],
+    "headers": {
+      "Authorization": "Bearer {token}"
+    },
+    "body_schema": null,
+    "response_schema": {
+      "layouts": "array",
+      "locale": "string",
+      "masters": "array",
+      "notesMaster": "object",
+      "pageSize": "object",
+      "presentationId": "string",
+      "revisionId": "string",
+      "slides": "array",
+      "title": "string"
+    },
+    "example_request": {},
+    "example_response": {},
+    "notes": "",
+    "status": "EXTRACTED"
+  },
+  {
+    "endpoint_id": "batch_update",
+    "component": "BatchUpdateComponent",
+    "method": "POST",
+    "url_template": "/v1/presentations/{presentationId}:batchUpdate",
+    "path_params": [
+      {
+        "name": "presentationId",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "query_params": [
+      {
+        "name": "$.xgafv",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "access_token",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "alt",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "callback",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "fields",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "key",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "oauth_token",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "prettyPrint",
+        "type": "boolean",
+        "required": false
+      },
+      {
+        "name": "quotaUser",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "upload_protocol",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "uploadType",
+        "type": "string",
+        "required": false
+      }
+    ],
+    "headers": {
+      "Authorization": "Bearer {token}"
+    },
+    "body_schema": {
+      "requests": "array",
+      "writeControl": "object"
+    },
+    "response_schema": {
+      "presentationId": "string",
+      "replies": "array",
+      "writeControl": "object"
+    },
+    "example_request": {},
+    "example_response": {},
+    "notes": "",
+    "status": "EXTRACTED"
+  },
+  {
+    "endpoint_id": "get_page",
+    "component": "GetPageComponent",
+    "method": "GET",
+    "url_template": "/v1/presentations/{presentationId}/pages/{pageObjectId}",
+    "path_params": [
+      {
+        "name": "presentationId",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "pageObjectId",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "query_params": [
+      {
+        "name": "$.xgafv",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "access_token",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "alt",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "callback",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "fields",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "key",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "oauth_token",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "prettyPrint",
+        "type": "boolean",
+        "required": false
+      },
+      {
+        "name": "quotaUser",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "upload_protocol",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "uploadType",
+        "type": "string",
+        "required": false
+      }
+    ],
+    "headers": {
+      "Authorization": "Bearer {token}"
+    },
+    "body_schema": null,
+    "response_schema": {
+      "layoutProperties": "object",
+      "masterProperties": "object",
+      "notesProperties": "object",
+      "objectId": "string",
+      "pageElements": "array",
+      "pageProperties": "object",
+      "pageType": "string",
+      "revisionId": "string",
+      "slideProperties": "object"
+    },
+    "example_request": {},
+    "example_response": {},
+    "notes": "",
+    "status": "EXTRACTED"
+  },
+  {
+    "endpoint_id": "get_page_thumbnail",
+    "component": "GetPageThumbnailComponent",
+    "method": "GET",
+    "url_template": "/v1/presentations/{presentationId}/pages/{pageObjectId}/thumbnail",
+    "path_params": [
+      {
+        "name": "presentationId",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "pageObjectId",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "query_params": [
+      {
+        "name": "$.xgafv",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "access_token",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "alt",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "callback",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "fields",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "key",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "oauth_token",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "prettyPrint",
+        "type": "boolean",
+        "required": false
+      },
+      {
+        "name": "quotaUser",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "upload_protocol",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "uploadType",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "thumbnailProperties.mimeType",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "thumbnailProperties.thumbnailSize",
+        "type": "string",
+        "required": false
+      }
+    ],
+    "headers": {
+      "Authorization": "Bearer {token}"
+    },
+    "body_schema": null,
+    "response_schema": {
+      "contentUrl": "string",
+      "height": "integer",
+      "width": "integer"
+    },
+    "example_request": {},
+    "example_response": {},
+    "notes": "",
+    "status": "EXTRACTED"
+  }
+]

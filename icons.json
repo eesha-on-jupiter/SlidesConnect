@@ -1,0 +1,118 @@
+{
+  "plugin_name": "SlidesConnect",
+  "plugin_prefix": "GS",
+  "resources_path": "Icons",
+  "resx_path": "Properties/Resources.resx",
+
+  "defaults": {
+    "size": 24,
+    "fg_color": "#FFFFFF",
+    "background": {
+      "shape": {
+        "type": "rounded-square",
+        "fill": "#FEBC12"
+      }
+    }
+  },
+
+  "plugin_icon": {
+    "_note": "Superseded by a hand-designed asset — GS_Plugin_Icon_16px.png (plugin root) copied over Icons/GS_SlidesConnectLogo.png and re-embedded via add_to_resources. Do NOT run generate_plugin_icon again without first re-copying that file back in, or it will regenerate from the fields below and overwrite the custom icon.",
+    "size": 16,
+    "resource_name": "SlidesConnectLogo",
+    "fg_iconify_id": "mynaui:presentation-solid",
+    "fg_color": "#FFFFFF",
+    "background": {
+      "shape": { "type": "circle", "fill": "#FEBC12" }
+    }
+  },
+
+  "subcategories": {
+    "Auth":         { "fg_color": "#FFFFFF", "background": { "shape": { "type": "circle",            "fill": "#FEBC12" } } },
+    "Presentation": { "fg_color": "#FFFFFF", "background": { "shape": { "type": "document",          "fill": "#FEBC12" } } },
+    "Slides":       { "fg_color": "#FFFFFF", "background": { "shape": { "type": "rounded-square",    "fill": "#FEBC12" } } },
+    "Layouts":      { "fg_color": "#FFFFFF", "background": { "shape": { "type": "rounded-rectangle", "fill": "#FEBC12" } } },
+    "Shapes":       { "fg_color": "#FFFFFF", "background": { "shape": { "type": "block",             "fill": "#FEBC12" } } },
+    "Text":         { "fg_color": "#FFFFFF", "background": { "shape": { "type": "bubble",             "fill": "#FEBC12" } } },
+    "TextStyle":    { "fg_color": "#FFFFFF", "background": { "shape": { "type": "hexagon",           "fill": "#FEBC12" } } },
+    "Tables":       { "fg_color": "#FFFFFF", "background": { "shape": { "type": "cut-square",        "fill": "#FEBC12" } } },
+    "Insert":       { "fg_color": "#FFFFFF", "background": { "shape": { "type": "file",              "fill": "#FEBC12" } } },
+    "Aggregate":    { "fg_color": "#FFFFFF", "background": { "shape": { "type": "arrow-square",      "fill": "#FEBC12" } } },
+    "Presets":      { "fg_color": "#FFFFFF", "background": { "shape": { "type": "bookmark",          "fill": "#FEBC12" } } }
+  },
+
+  "components": [
+    { "name": "SlidesConnectAuth", "subcategory": "Auth", "fg_iconify_id": "mdi:key-variant" },
+
+    { "name": "CreatePresentation", "subcategory": "Presentation", "fg_iconify_id": "mdi:file-plus" },
+    { "name": "GetPresentation",    "subcategory": "Presentation", "fg_iconify_id": "mdi:file-presentation-box" },
+    { "name": "BatchUpdate",        "subcategory": "Presentation", "fg_iconify_id": "mdi:cloud-upload" },
+
+    { "name": "GetSlide",              "subcategory": "Slides", "fg_iconify_id": "mdi:file-eye" },
+    { "name": "CreateSlide",           "subcategory": "Slides", "fg_iconify_id": "mdi:card-plus" },
+    { "name": "UpdateSlideProperties", "subcategory": "Slides", "fg_iconify_id": "mdi:format-color-fill" },
+    { "name": "DeleteSlide",           "subcategory": "Slides", "fg_iconify_id": "mdi:trash-can" },
+
+    { "name": "ListLayouts",             "subcategory": "Layouts", "fg_iconify_id": "mdi:cards" },
+    { "name": "ListLayoutPlaceholders",  "subcategory": "Layouts", "fg_iconify_id": "mdi:view-list" },
+    { "name": "BuildSlidesFromLayout",   "subcategory": "Layouts", "fg_iconify_id": "mdi:auto-fix" },
+    { "name": "ReadCsv",                 "subcategory": "Layouts", "fg_iconify_id": "mdi:file-delimited" },
+    { "name": "GetCsvColumn",            "subcategory": "Layouts", "fg_iconify_id": "mdi:table-large" },
+
+    { "name": "CreateShape",           "subcategory": "Shapes", "fg_iconify_id": "mdi:shape-plus" },
+    { "name": "UpdateShapeProperties", "subcategory": "Shapes", "fg_iconify_id": "mdi:format-paint" },
+    { "name": "UpdateShapeTransform",  "subcategory": "Shapes", "fg_iconify_id": "mdi:move-resize" },
+    { "name": "RhinoShapeExport",      "subcategory": "Shapes", "fg_iconify_id": "mdi:ruler-square" },
+
+    { "name": "InsertText",           "subcategory": "Text", "fg_iconify_id": "mdi:format-text" },
+    { "name": "ReplaceAllText",       "subcategory": "Text", "fg_iconify_id": "mdi:find-replace" },
+    { "name": "UpdateTextStyle",      "subcategory": "TextStyle", "fg_iconify_id": "mdi:format-font" },
+    { "name": "UpdateParagraphStyle", "subcategory": "TextStyle", "fg_iconify_id": "mdi:format-align-left" },
+
+    { "name": "CreateTable",     "subcategory": "Tables", "fg_iconify_id": "mdi:table-plus" },
+    { "name": "DataTreeToTable", "subcategory": "Tables", "fg_iconify_id": "mdi:table-arrow-down" },
+
+    { "name": "CreateImage",       "subcategory": "Insert", "fg_iconify_id": "mdi:image-plus" },
+    { "name": "ReplaceImage",      "subcategory": "Insert", "fg_iconify_id": "mdi:image-sync" },
+    { "name": "GetImageUrl",       "subcategory": "Insert", "fg_iconify_id": "mdi:cloud-upload" },
+    { "name": "CaptureCameraView", "subcategory": "Insert", "fg_iconify_id": "mdi:crosshairs-gps" },
+
+    { "name": "StyledTextBox", "subcategory": "Text", "fg_iconify_id": "mdi:text-box-edit" },
+    { "name": "BulletList", "subcategory": "TextStyle", "fg_iconify_id": "mdi:format-list-bulleted" },
+    { "name": "TableCellStyle", "subcategory": "Tables", "fg_iconify_id": "mdi:table-large" },
+    { "name": "TableBorders", "subcategory": "Tables", "fg_iconify_id": "mdi:border-outside" },
+    { "name": "MergeCells", "subcategory": "Tables", "fg_iconify_id": "mdi:table-merge-cells" },
+    { "name": "TableColumnWidth", "subcategory": "Tables", "fg_iconify_id": "mdi:table-column-width" },
+    { "name": "AlignmentPreset", "subcategory": "Presets", "fg_iconify_id": "mdi:format-align-justify" },
+    { "name": "FontFamilyPreset", "subcategory": "Presets", "fg_iconify_id": "mdi:format-font" },
+    { "name": "BulletPreset", "subcategory": "Presets", "fg_iconify_id": "mdi:format-list-bulleted-type" },
+    { "name": "DashStylePreset", "subcategory": "Presets", "fg_iconify_id": "mdi:dots-horizontal" },
+    { "name": "BorderPositionPreset", "subcategory": "Presets", "fg_iconify_id": "mdi:border-style" },
+    { "name": "ContentAlignmentPreset", "subcategory": "Presets", "fg_iconify_id": "mdi:format-vertical-align-center" },
+
+    { "name": "BoldText", "subcategory": "TextStyle", "fg_iconify_id": "mdi:format-bold" },
+    { "name": "ItalicText", "subcategory": "TextStyle", "fg_iconify_id": "mdi:format-italic" },
+    { "name": "UnderlineText", "subcategory": "TextStyle", "fg_iconify_id": "mdi:format-underline" },
+    { "name": "StrikethroughText", "subcategory": "TextStyle", "fg_iconify_id": "mdi:format-strikethrough-variant" },
+    { "name": "FontSizeText", "subcategory": "TextStyle", "fg_iconify_id": "mdi:format-size" },
+    { "name": "FontFamilyText", "subcategory": "TextStyle", "fg_iconify_id": "mdi:format-text-variant" },
+    { "name": "TextColorText", "subcategory": "TextStyle", "fg_iconify_id": "mdi:format-color-text" },
+    { "name": "HighlightText", "subcategory": "TextStyle", "fg_iconify_id": "mdi:format-color-highlight" },
+    { "name": "LinkText", "subcategory": "TextStyle", "fg_iconify_id": "mdi:link-variant" },
+    { "name": "BaselineText", "subcategory": "TextStyle", "fg_iconify_id": "mdi:format-superscript" },
+    { "name": "AlignedText", "subcategory": "TextStyle", "fg_iconify_id": "mdi:format-align-center" },
+    { "name": "LineSpacingText", "subcategory": "TextStyle", "fg_iconify_id": "mdi:format-line-spacing" },
+    { "name": "IndentText", "subcategory": "TextStyle", "fg_iconify_id": "mdi:format-indent-increase" },
+    { "name": "SpaceAboveText", "subcategory": "TextStyle", "fg_iconify_id": "mdi:format-vertical-align-top" },
+    { "name": "SpaceBelowText", "subcategory": "TextStyle", "fg_iconify_id": "mdi:format-vertical-align-bottom" },
+    { "name": "ShapeFill", "subcategory": "Shapes", "fg_iconify_id": "mdi:format-color-fill" },
+    { "name": "ShapeOutline", "subcategory": "Shapes", "fg_iconify_id": "mdi:border-all-variant" },
+    { "name": "ShapeShadow", "subcategory": "Shapes", "fg_iconify_id": "mdi:box-shadow" },
+    { "name": "ShapeLink", "subcategory": "Shapes", "fg_iconify_id": "mdi:link-box-variant" },
+    { "name": "ShapeTextFit", "subcategory": "Shapes", "fg_iconify_id": "mdi:fit-to-page" },
+
+    { "name": "RequestsAggregator", "subcategory": "Aggregate", "fg_iconify_id": "ph:brackets-curly-bold" },
+
+    { "name": "ShapeTypePreset",        "subcategory": "Presets", "fg_iconify_id": "mdi:shape-outline" },
+    { "name": "PredefinedLayoutPreset", "subcategory": "Presets", "fg_iconify_id": "mdi:view-dashboard-outline" }
+  ]
+}
