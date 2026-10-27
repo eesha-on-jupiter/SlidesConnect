@@ -1,6 +1,6 @@
 # Authentication
 
-SlidesConnect uses OAuth 2.0 Bearer tokens. The plugin does not run its own OAuth flow — you
+SlidesConnect uses OAuth 2.0 Bearer tokens. The plugin does not run its own OAuth flow; you
 supply a valid access token, and every HTTP component sends it as `Authorization: Bearer {token}`.
 
 ## Scopes you need
@@ -22,7 +22,7 @@ The quickest way to get a short-lived Bearer token for testing is
 1. Open the Playground and select the scope above under "Google Slides API v1" (and, under "Drive
    API v3", `drive.file` if you upload local images and/or `drive.readonly` if you need name lookup).
 2. Authorize, then exchange the authorization code for tokens.
-3. Copy the **Access token** — this is what goes into every component's `Token` input.
+3. Copy the **Access token**: this is what goes into every component's `Token` input.
 
 Access tokens from the Playground expire in about an hour. For a longer-lived setup, register your
 own OAuth client and run a standard installed-app or service-account flow, then feed the resulting
@@ -39,7 +39,7 @@ variable via a Grasshopper script component if you'd rather not paste it onto th
 
 [Google Slides Auth](components/Auth/SlidesConnectAuth.md) calls Google's token validation
 endpoint and returns the granted scopes on its `Status` / `Response` outputs. Run this first on any
-new canvas — if it fails, nothing downstream will work either.
+new canvas; if it fails, nothing downstream will work either.
 
 ## What "Status" means
 

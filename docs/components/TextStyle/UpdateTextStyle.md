@@ -1,6 +1,6 @@
 # Styled Text
 
-Styles the text in one or more shapes or table cells with any combination of character traits — the Slides counterpart of DocsConnect's Styled Text.
+Styles the text in one or more shapes or table cells with any combination of character traits, the Slides counterpart of DocsConnect's Styled Text.
 
 ## Inputs
 
@@ -12,7 +12,7 @@ Styles the text in one or more shapes or table cells with any combination of cha
 | Underline | bool (list) | No |  | Underline (connect to apply). |
 | Strikethrough | bool (list) | No |  | Strikethrough (connect to apply). |
 | Font Size | double (list) | No | 0 | Font size in points (>0 to apply). |
-| Font Family | string (list) | No | "" | Font family name (blank to skip) — see the Font Family preset. |
+| Font Family | string (list) | No | "" | Font family name (blank to skip); see the Font Family preset. |
 | Text Color | colour (list) | No |  | Text colour (connect to apply). |
 | Highlight | colour (list) | No |  | Highlight (background) colour behind the text (connect to apply). |
 | Link URL | string (list) | No | "" | Hyperlink URL (blank to skip). |

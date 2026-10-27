@@ -1,12 +1,12 @@
 # Workflows
 
-Component chains for the things people usually build. Components only — see each component's page
+Component chains for the things people usually build. Components only; see each component's page
 for its inputs. `─▶` is a wire; a `Merge` is the Grasshopper Merge component (slot order = request
 order).
 
 Every workflow ends the same way: Request JSON goes into **Requests Aggregator**, its
 `Requests JSON` goes into **Batch Update** with the Token and Presentation ID, and Batch Update's
-**Send** button is clicked. Order matters inside a batch — a slide must be created before anything
+**Send** button is clicked. Order matters inside a batch; a slide must be created before anything
 is placed on it, so wire the slide's request first.
 
 ---
@@ -38,7 +38,7 @@ Create Slide ──SID──▶ Styled Text Box ─▶ Requests Aggregator ─�
 
 - One box per `Text` item; connect only the traits you want (Bold, Font Size, Text Color, Fill
   Color, Alignment, Autofit…).
-- `Same Box = true` joins every Text item into one box, each keeping its own style — a letter list
+- `Same Box = true` joins every Text item into one box, each keeping its own style; a letter list
   with a sampled `Font Size` list gives a wave, a `Gradient` into `Text Color` a colour sweep.
 
 ---
@@ -85,7 +85,7 @@ Camera planes ─▶ Capture Camera View (Capture) ─▶ Get Image URL (Get URL
 ```
 
 - One row per record (e.g. one per building floor) becomes one slide, with one captured view each.
-- Get Image URL needs the `drive.file` scope — see [authentication.md](authentication.md).
+- Get Image URL needs the `drive.file` scope; see [authentication.md](authentication.md).
 
 ---
 
@@ -117,7 +117,7 @@ Create Slide ──SID──▶ Create Table ──Object ID──▶ Table Cell
 - Data Tree To Table creates and fills the table in one component; rows and columns come from the
   tree's shape.
 - Create Table makes an empty table of a given size and outputs its `Object ID` for the table
-  styling components (Data Tree To Table doesn't expose its table ID in 1.0.0 — see its page).
+  styling components (Data Tree To Table doesn't expose its table ID in 1.0.0; see its page).
 - Cell text styling: Styled Text / Styled Paragraph with `Row` / `Column`.
 
 ---
@@ -141,7 +141,7 @@ Find Text {{tokens}} ┐
 Replace Text values  ┴─▶ Replace All Text ─▶ Requests Aggregator ─▶ Batch Update
 ```
 
-- Runs across the whole presentation — handy for a template deck that carries `{{project}}`-style
+- Runs across the whole presentation, handy for a template deck that carries `{{project}}`-style
   tokens in ordinary text boxes.
 
 ---

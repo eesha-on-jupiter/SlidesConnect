@@ -1,7 +1,7 @@
 # Shape Type
 
 Value-list of every Google Slides shape type (141) for [Create Shape](../Shapes/CreateShape.md)'s
-Shape Type input — basic shapes, arrows, stars, callouts, ribbons and scrolls, braces and brackets,
+Shape Type input: basic shapes, arrows, stars, callouts, ribbons and scrolls, braces and brackets,
 math symbols and the flow-chart set. Wire the dropdown's output into Shape Type; a list of shape
 types (e.g. from a `Random` or a data column) is just as valid, one per record.
 

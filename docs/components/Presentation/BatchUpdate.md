@@ -1,6 +1,6 @@
 # Batch Update
 
-Pushes a list of Request JSON objects to a live presentation in one `batchUpdate` call — the single
+Pushes a list of Request JSON objects to a live presentation in one `batchUpdate` call, the single
 write endpoint every content-building component's output ultimately flows into.
 
 ## Inputs
@@ -9,7 +9,7 @@ write endpoint every content-building component's output ultimately flows into.
 |---|---|---|---|---|
 | Token | string (item) | Yes | "" | OAuth 2.0 bearer token. |
 | Presentation ID | string (item) | Yes | "" | ID of the presentation to update. |
-| Requests JSON | string (tree) | Yes | — | The request objects — a list or a tree (flattened branch by branch); typically the output of [Requests Aggregator](../Aggregate/RequestsAggregator.md). |
+| Requests JSON | string (tree) | Yes | None | The request objects: a list or a tree (flattened branch by branch); typically the output of [Requests Aggregator](../Aggregate/RequestsAggregator.md). |
 
 ## Outputs
 
@@ -21,13 +21,13 @@ write endpoint every content-building component's output ultimately flows into.
 
 ## Notes
 
-Google Slides has a single flat `requests[]` array — there's no per-request-type endpoint, so every
+Google Slides has a single flat `requests[]` array; there's no per-request-type endpoint, so every
 JSON-emitting component in this plugin (Slides/Shapes/Text/Tables/Insert tabs) feeds this same
 component via [Requests Aggregator](../Aggregate/RequestsAggregator.md). Check `Status` before
-trusting `Replies` — a partial failure surfaces there.
+trusting `Replies`; a partial failure surfaces there.
 
 **Pressing Send twice.** Builder components generate their object IDs when they compute, and
-pressing Send doesn't recompute them — so a second push would re-send the same IDs and Google would
+pressing Send doesn't recompute them, so a second push would re-send the same IDs and Google would
 reject the whole batch with "object ID already exists". Batch Update remembers which IDs it has
 already created in each presentation; on a repeat push it swaps those for fresh ones (consistently
 across the batch, so a new slide and the shapes targeting it move together) and adds a remark. The

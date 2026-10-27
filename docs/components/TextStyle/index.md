@@ -1,6 +1,6 @@
 # Text Style
 
-Styling for text that already lives in a shape, placeholder or table cell — the Slides counterpart of
+Styling for text that already lives in a shape, placeholder or table cell, the Slides counterpart of
 DocsConnect's Text and Paragraph tabs. Every component takes Object ID(s) (from Create Shape, Styled
 Text Box, Create Slide's placeholder outputs, or a table), every trait is a list, and each emits one
 request per record. Styled Text / Styled Paragraph take every trait at once; the rest take exactly
@@ -8,8 +8,8 @@ one. Per-letter / per-word styling is in [Styled Text Box](../Text/StyledTextBox
 
 | Component | Description |
 |---|---|
-| [Styled Text](UpdateTextStyle.md) | Styles the text already in shapes or cells — bold, italic, underline, strikethrough, size, font, colour, highlight, link, baseline, small caps. |
-| [Styled Paragraph](UpdateParagraphStyle.md) | Styles paragraphs already in shapes or cells — alignment, line spacing, indents, space above/below, direction. |
+| [Styled Text](UpdateTextStyle.md) | Styles the text already in shapes or cells: bold, italic, underline, strikethrough, size, font, colour, highlight, link, baseline, small caps. |
+| [Styled Paragraph](UpdateParagraphStyle.md) | Styles paragraphs already in shapes or cells: alignment, line spacing, indents, space above/below, direction. |
 | [Bullet List](BulletList.md) | Turns the paragraphs in shapes or cells into a bulleted or numbered list. |
 | [Bold Text](BoldText.md) | Makes the text in one or more shapes bold (or un-bold). |
 | [Italic Text](ItalicText.md) | Makes the text in one or more shapes italic. |

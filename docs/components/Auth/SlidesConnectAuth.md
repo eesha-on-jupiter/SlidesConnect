@@ -20,4 +20,4 @@ returns its status and granted scopes.
 
 Auth is the first component to place on any canvas: every other component in this plugin needs a
 valid token, so downstream components depend on a successful result from this one. Run it first on
-any new canvas — if it fails, nothing downstream will work either.
+any new canvas; if it fails, nothing downstream will work either.

@@ -19,14 +19,14 @@ Builds `createSlide` requests for one or more slides.
 | Name | Type | Description |
 |---|---|---|
 | Request JSON | string (list) | The `createSlide` request(s), one per record. |
-| Slide ID | string (list) | The resolved object ID of each new slide — feed into downstream Slide ID inputs. |
+| Slide ID | string (list) | The resolved object ID of each new slide; feed into downstream Slide ID inputs. |
 | Title Object ID | string (list) | The new object ID assigned to the title placeholder mapping, if Title Placeholder ID was supplied. |
 | Body Object ID | string (list) | Same, for the body placeholder. |
 | Picture Object ID | string (list) | Same, for the picture placeholder. |
 
 ## Notes
 
-Object ID is auto-generated when left blank and always resolved back out on Slide ID — this is the
+Object ID is auto-generated when left blank and always resolved back out on Slide ID; this is the
 mechanism behind parametric multi-slide wiring: feed Slide ID into [Create Shape](../Shapes/CreateShape.md)'s
 or [Create Image](../Insert/CreateImage.md)'s Slide ID to target the slide(s) just created in the same
 batch.
@@ -34,7 +34,7 @@ batch.
 Layout ID (an existing Layout's object ID) wins over the predefined Layout keyword when both are
 supplied. When Title/Body/Picture Placeholder ID are also supplied, this component populates
 `createSlide.placeholderIdMappings`, mapping each layout placeholder to a fresh auto-generated object
-ID resolved back out per role — this is the deterministic way to fill a layout's placeholders,
+ID resolved back out per role; this is the deterministic way to fill a layout's placeholders,
 without relying on any text-token matching. For the common case of "a Layout plus flat content
 lists," [Build Slides From Layout](../Layouts/BuildSlidesFromLayout.md) wraps this whole flow (plus
 the placeholder discovery step) into one component call.

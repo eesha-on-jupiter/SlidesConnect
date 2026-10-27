@@ -20,4 +20,4 @@ Sets the fill colour and/or transparency of one or more existing shapes.
 
 A single-purpose slice of [Update Shape Style](UpdateShapeProperties.md): same `updateShapeProperties`
 request, only the field(s) this component owns in the mask, so nothing else on the shape is touched.
-Every input is a list — one value per shape, or a single value broadcast to all of them.
+Every input is a list: one value per shape, or a single value broadcast to all of them.

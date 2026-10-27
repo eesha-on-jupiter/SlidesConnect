@@ -6,7 +6,7 @@ Raises or lowers the text in one or more shapes (superscript / subscript). The S
 
 | Name | Type | Required | Default | Description |
 |---|---|---|---|---|
-| Object ID | string (list) | Yes | "" | Object ID(s) of the shape whose text to style — from Create Shape / Styled Text Box's Object ID output, or Create Slide's Title/Body Object ID. |
+| Object ID | string (list) | Yes | "" | Object ID(s) of the shape whose text to style, from Create Shape / Styled Text Box's Object ID output, or Create Slide's Title/Body Object ID. |
 | Baseline | string (list) | Yes | "SUPERSCRIPT" | Baseline offset: SUPERSCRIPT, SUBSCRIPT or NONE. |
 
 ## Outputs
@@ -18,7 +18,7 @@ Raises or lowers the text in one or more shapes (superscript / subscript). The S
 ## Notes
 
 One trait, one request per record, styling the whole object's text. Docs' Baseline Text inserts new
-text at an index; Slides has no document index, so this styles the text already in an object — wire the
+text at an index; Slides has no document index, so this styles the text already in an object; wire the
 Object ID from [Create Shape](../Shapes/CreateShape.md), [Styled Text Box](../Text/StyledTextBox.md) or
 [Create Slide](../Slides/CreateSlide.md)'s placeholder outputs. The trait is a list: five Object IDs and
 five values style five shapes independently; one value broadcasts. To combine several traits in one

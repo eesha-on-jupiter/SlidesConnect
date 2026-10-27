@@ -18,7 +18,7 @@ Builds one `replaceAllText` request that finds and replaces text across the whol
 
 ## Notes
 
-This is the one component whose output is item-access rather than list — it targets the whole
+This is the one component whose output is item-access rather than list; it targets the whole
 presentation in a single request. It still fans out cleanly into
 [Requests Aggregator](../Aggregate/RequestsAggregator.md) alongside every other component's list
 output.

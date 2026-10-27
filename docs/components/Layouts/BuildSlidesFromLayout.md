@@ -21,24 +21,24 @@ itself, then for each record builds a `createSlide` (with `placeholderIdMappings
 
 | Name | Type | Description |
 |---|---|---|
-| Request JSON | string (list) | The full request sequence for the whole deck — wire straight into [Batch Update](../Presentation/BatchUpdate.md) (Requests Aggregator is only needed when combining with other content). |
+| Request JSON | string (list) | The full request sequence for the whole deck; wire straight into [Batch Update](../Presentation/BatchUpdate.md) (Requests Aggregator is only needed when combining with other content). |
 | Slide ID | string (list) | Object ID of each new slide. |
 
 ## Notes
 
 Makes one internal `getPage` call to find the layout's `TITLE`-or-`CENTERED_TITLE`/`SUBTITLE`/`BODY`/
-`PICTURE` placeholders — both title placeholder type variants are treated as the Title role (a
+`PICTURE` placeholders; both title placeholder type variants are treated as the Title role (a
 title-slide-style layout reports `CENTERED_TITLE`, not `TITLE`, so matching only `TITLE` would
 silently drop it).
 
 No [List Layout Placeholders](ListLayoutPlaceholders.md), no ID-threading, no text-token matching
-required from the user — this is the fastest path from a hand-designed branded Layout to a
+required from the user; this is the fastest path from a hand-designed branded Layout to a
 data-driven deck. The lower-level [List Layouts](ListLayouts.md) + List Layout Placeholders +
 [Create Slide](../Slides/CreateSlide.md) + [Insert Text](../Text/InsertText.md) +
 [Replace Image](../Insert/ReplaceImage.md) wiring path still exists underneath for anyone who needs
 finer per-element control. For the no-layout case, use [Create Slide](../Slides/CreateSlide.md)
 (BLANK) + [Styled Text Box](../Text/StyledTextBox.md), which places each record's text where you say.
 
-Feed lists longer than one item to build a full multi-slide deck from one Layout — this is the
+Feed lists longer than one item to build a full multi-slide deck from one Layout; this is the
 concrete mechanism behind pushing an entire data-driven deck (e.g. from a CSV via
 [Read CSV](ReadCsv.md) / [Get CSV Column](GetCsvColumn.md)) in a single component call.

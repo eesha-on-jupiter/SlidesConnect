@@ -26,4 +26,4 @@ A value-list preset of Google Slides predefined layout values, for use with the 
 
 These are literal Google Slides `predefinedLayout` enum values, applied to the presentation's default
 theme. They're ignored on Create Slide when a Layout ID (an existing custom Layout's object ID) is
-also supplied — Layout ID always wins.
+also supplied; Layout ID always wins.

@@ -18,7 +18,7 @@ placeholder elements with a new image URL.
 
 ## Notes
 
-Different from [Create Image](CreateImage.md), which places a brand-new image element — this targets
+Different from [Create Image](CreateImage.md), which places a brand-new image element; this targets
 an already-inserted image (e.g. [Create Slide](../Slides/CreateSlide.md)'s Picture Object ID output
 when a Layout has a picture placeholder) rather than a position, so it feeds
 [Requests Aggregator](../Aggregate/RequestsAggregator.md) directly.

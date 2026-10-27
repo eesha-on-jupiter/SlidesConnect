@@ -12,14 +12,14 @@ reuse it across components.
 ## 2. Verify the connection
 
 Drop **Auth > Google Slides Auth** ([SlidesConnectAuth](components/Auth/SlidesConnectAuth.md)). Wire your
-token Panel into `Token`, then read `Status` / `Response` — a healthy response reports the token's
+token Panel into `Token`, then read `Status` / `Response`; a healthy response reports the token's
 granted scopes.
 
 ## 3. Create a presentation
 
 Drop **Presentation > Create Presentation**
 ([CreatePresentation](components/Presentation/CreatePresentation.md)). Wire your token in, set
-`Title`, click **Create**, and read its `Presentation ID` output — everything downstream chains from this.
+`Title`, click **Create**, and read its `Presentation ID` output; everything downstream chains from this.
 
 ## 4. Add a slide and some text
 
@@ -40,7 +40,7 @@ shape above and `Text` = "Hello from Grasshopper".
 Wire all three components' `Request JSON` outputs into **Aggregate > Requests Aggregator**
 ([RequestsAggregator](components/Aggregate/RequestsAggregator.md)), then into **Presentation >
 Batch Update** ([BatchUpdate](components/Presentation/BatchUpdate.md)) along with your Token and the
-`Presentation ID` from step 3, and click **Send**. Read `Status` — a healthy response confirms the requests were applied,
+`Presentation ID` from step 3, and click **Send**. Read `Status`; a healthy response confirms the requests were applied,
 and the presentation now has your slide and text.
 
 ## What's next
@@ -49,6 +49,6 @@ and the presentation now has your slide and text.
 - For a deck driven by a hand-designed Layout instead of building shapes one at a time, see
   [Build Slides From Layout](components/Layouts/BuildSlidesFromLayout.md).
 - For N slides from a Grasshopper data tree or CSV in one push, feed a list of N items into any unit
-  builder (Create Slide, Create Shape, Insert Text, …) instead of a single value — list-access is the
+  builder (Create Slide, Create Shape, Insert Text, …) instead of a single value; list-access is the
   default across almost every component, and one call then produces N requests, index-matched to
   your input.

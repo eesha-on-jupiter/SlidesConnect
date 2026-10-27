@@ -13,7 +13,7 @@ Creates a new, empty Google Slides presentation.
 
 | Name | Type | Description |
 |---|---|---|
-| Presentation ID | string (item) | The new presentation's ID — everything downstream chains from this. |
+| Presentation ID | string (item) | The new presentation's ID; everything downstream chains from this. |
 | Status | string (item) | Result of the create call. |
 | Response | string (item) | Raw response body. |
 

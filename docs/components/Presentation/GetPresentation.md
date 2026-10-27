@@ -1,6 +1,6 @@
 # Get Presentation
 
-Fetches a presentation by ID, or by title when Presentation ID is left blank — the title is resolved
+Fetches a presentation by ID, or by title when Presentation ID is left blank; the title is resolved
 via a Drive `files.list` lookup, and the most-recently-modified match wins on ambiguity.
 
 ## Inputs
@@ -15,13 +15,13 @@ via a Drive `files.list` lookup, and the most-recently-modified match wins on am
 
 | Name | Type | Description |
 |---|---|---|
-| Response | string (item) | Raw response body — the full presentation resource, including its `layouts[]` array. |
+| Response | string (item) | Raw response body: the full presentation resource, including its `layouts[]` array. |
 | Presentation ID | string (item) | The resolved presentation ID (useful when you looked up by Name). |
 | Status | string (item) | Result of the get call. |
 
 ## Notes
 
 Name-based lookup requires the token to carry a Drive read scope
-(`drive.readonly` or `drive.metadata.readonly`) in addition to the Slides `presentations` scope — see
+(`drive.readonly` or `drive.metadata.readonly`) in addition to the Slides `presentations` scope; see
 [authentication.md](../../authentication.md) for the full scope list. If you only ever pass a
 Presentation ID directly, the `presentations` scope alone is enough.

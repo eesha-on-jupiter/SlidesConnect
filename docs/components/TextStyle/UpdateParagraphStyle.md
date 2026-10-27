@@ -1,13 +1,13 @@
 # Styled Paragraph
 
-Styles the paragraphs in one or more shapes or table cells with any combination of paragraph-level traits — the Slides counterpart of DocsConnect's Styled Paragraph.
+Styles the paragraphs in one or more shapes or table cells with any combination of paragraph-level traits, the Slides counterpart of DocsConnect's Styled Paragraph.
 
 ## Inputs
 
 | Name | Type | Required | Default | Description |
 |---|---|---|---|---|
 | Object ID | string (list) | Yes | "" | Object ID(s) of the shape (or table) whose paragraphs to style. |
-| Alignment | string (list) | No | "" | START, CENTER, END, JUSTIFIED (blank to skip) — see the Alignment preset. |
+| Alignment | string (list) | No | "" | START, CENTER, END, JUSTIFIED (blank to skip); see the Alignment preset. |
 | Line Spacing | double (list) | No | 0 | Line spacing percent, e.g. 115 (>0 to apply; 100 = normal). |
 | Indent | double (list) | No | 0 | Start indent in points (>0 to apply). |
 | Space Above | double (list) | No | 0 | Space above each paragraph in points (>0 to apply). |

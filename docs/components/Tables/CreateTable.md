@@ -20,7 +20,7 @@ Builds `createTable` requests for one or more empty tables.
 
 ## Notes
 
-This creates an empty table only — populate cells afterward via
+This creates an empty table only; populate cells afterward via
 [Insert Text](../Text/InsertText.md) targeting each cell, or use
 [Data Tree To Table](DataTreeToTable.md) to build and populate a table from a Grasshopper data tree
 in one component.

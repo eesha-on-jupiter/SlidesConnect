@@ -2,7 +2,7 @@
 
 Line dash values for Shape Outline / Table Borders.
 
-A value-list (dropdown) — wire its output into the matching string input. The strings are the Google
+A value-list (dropdown); wire its output into the matching string input. The strings are the Google
 Slides API enum values, which differ from Google Docs' in places.
 
 | Label | Value |

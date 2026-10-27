@@ -1,24 +1,24 @@
 # Data Tree To Table
 
 **AEC feature.** Builds a `createTable` request plus one `insertText` request per populated cell from
-a Grasshopper data tree — the whole table in one component call.
+a Grasshopper data tree: the whole table in one component call.
 
 ## Inputs
 
 | Name | Type | Required | Default | Description |
 |---|---|---|---|---|
 | Slide ID | string (item) | Yes | "" | Slide to place the table on. |
-| Data | string (tree) | Yes | — | One branch per row; items in a branch are that row's cell values. |
+| Data | string (tree) | Yes | None | One branch per row; items in a branch are that row's cell values. |
 
 ## Outputs
 
 | Name | Type | Description |
 |---|---|---|
-| Request JSON | string (list) | The full request sequence — one createTable plus one insertText per populated cell. |
+| Request JSON | string (list) | The full request sequence: one createTable plus one insertText per populated cell. |
 
 ## Notes
 
-Row and column counts are inferred from the tree's shape — the widest branch determines column
+Row and column counts are inferred from the tree's shape; the widest branch determines column
 count, and branch count determines row count. Empty cells are simply skipped (no insertText emitted
 for them), so a ragged tree doesn't error, it just leaves those cells blank.
 

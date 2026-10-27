@@ -22,7 +22,7 @@ Sets the fill colour and/or vertical content alignment of a range of cells in an
 
 ## Notes
 
-Wire the table's Object ID from [Create Table](CreateTable.md). [Data Tree To Table](DataTreeToTable.md) has no Object ID output in 1.0.0 — its table ID is the `objectId` of the `createTable` request (the first item of its Request JSON).
+Wire the table's Object ID from [Create Table](CreateTable.md). [Data Tree To Table](DataTreeToTable.md) has no Object ID output in 1.0.0; its table ID is the `objectId` of the `createTable` request (the first item of its Request JSON).
 Row/Column -1 applies to the whole table (the API's default when `tableRange` is omitted); otherwise the
 range starts at Row/Column and covers Row Span × Column Span cells. For the *text* in a cell (bold,
 size, colour, alignment) use [Styled Text](../TextStyle/UpdateTextStyle.md) / [Styled Paragraph](../TextStyle/UpdateParagraphStyle.md)

@@ -1,6 +1,6 @@
 # List Layout Placeholders
 
-Lists the placeholder page elements on a Layout page — each entry's own object ID and placeholder
+Lists the placeholder page elements on a Layout page: each entry's own object ID and placeholder
 type (TITLE, BODY, PICTURE, etc).
 
 ## Inputs
